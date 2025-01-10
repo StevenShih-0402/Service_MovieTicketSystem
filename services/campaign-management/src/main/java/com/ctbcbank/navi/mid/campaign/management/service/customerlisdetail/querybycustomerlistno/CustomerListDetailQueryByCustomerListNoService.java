@@ -1,0 +1,5 @@
+package com.ctbcbank.navi.mid.campaign.management.service.customerlisdetail.querybycustomerlistno;
+
+public interface CustomerListDetailQueryByCustomerListNoService {
+    CustomerListDetailQueryByCustomerListNoRsBo queryByCustomerListNo(CustomerListDetailQueryByCustomerListNoRqBo customerListDetailQueryByCustomerListNoRqBo);
+}

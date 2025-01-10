@@ -1,0 +1,82 @@
+spring:
+  application:
+    name: CAMPAIGN
+  jpa:
+    open-in-view: false
+
+server:
+  port: 8104
+  error:
+    whitelabel:
+      enabled: false
+  servlet:
+    context-path: /campaign-management
+  shutdown: graceful
+
+management:
+  health:
+    liveness-state.enabled: true
+    readiness-state.enabled: true
+    redis.enabled: false
+  endpoint:
+    health.probes.enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: [ "health", "metrics", "mappings", "prometheus" ]
+  otlp:
+    tracing:
+      endpoint: ${MANAGEMENT_OTLP_TRACING_ENDPOINT}
+  tracing:
+    enabled: ${TRACE_ENABLED}
+
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT}
+  file:
+    path: ${LOGGING_FILE_PATH}
+
+cbmp:
+  system-id: NVMP-BK
+  cache:
+    local:
+      cron:
+        all-evict:
+      maximum-size: 1000
+      expire-after-access: 600
+      expire-after-write: 3600
+  datasource:
+    mid:
+      driver-class-name: oracle.jdbc.OracleDriver
+      url: ${DB_URL}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      packages-to-scan: com.ibm.cbmp.fabric,com.ctbcbank.navi.mid
+      primary: true
+      hikari:
+        poolName: navidbcp
+        connectionTimeout: 10000
+        idleTimeout: 600000
+        maxLifetime: 1800000
+        maximumPoolSize: 5
+        minimum-idle: 1
+        auto-commit: false
+  httpclient:
+    ssl:
+      validate-certificate: ${HTTPCLIENT_SSL_VALIDATE_CERTIFICATE}
+  web:
+    header:
+      validation:
+        check-exists: ${WEB_HEADER_VALIDATION_CHECK_EXISTS}
+        verify: ${WEB_HEADER_VALIDATION_VERIFY}
+    jwt:
+      key-location: ${WEB_JWT_KEY_LOCATION}
+
+adapter:
+  navi:
+    customer-info-management:
+      domain: ${CUSTINFO_URL_DOMAIN}
+
+campaign:
+  query-max-size: { CAMPAIGN-QUERY-MAX-SIZE }
+  insert-batch-size: { CAMPAIGN-INSERT-BATCH-SIZE }
