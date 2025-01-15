@@ -28,5 +28,4 @@ public class CampaignFormHistoryDto extends BaseDto {
     private String groupNodeData;
     private String createEmployeeNo;
     private String updateEmployeeNo;
-    private Boolean isParticipantList;
 }

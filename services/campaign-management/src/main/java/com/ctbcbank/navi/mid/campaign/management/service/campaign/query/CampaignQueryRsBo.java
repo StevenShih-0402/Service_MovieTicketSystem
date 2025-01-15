@@ -32,7 +32,6 @@ public class CampaignQueryRsBo {
         private LocalDateTime startDateTime;
         private LocalDateTime endDateTime;
         private String createEmployeeNo;
-        private Boolean isParticipantList;
         private LocalDateTime createDttm;
         private LocalDateTime updateDttm;
     }

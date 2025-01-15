@@ -30,7 +30,6 @@ public class CampaignFormDto extends BaseDto {
     private Boolean isListing;
     private String groupNodeData;
     private String createEmployeeNo;
-    private Boolean isParticipantList;
     private String customerListNo;
     private String participantListVersion;
     private CampaignParticipantTypeEnum participantType;

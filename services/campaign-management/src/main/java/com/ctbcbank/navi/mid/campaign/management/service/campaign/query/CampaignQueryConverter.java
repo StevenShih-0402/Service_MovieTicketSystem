@@ -49,7 +49,6 @@ public class CampaignQueryConverter {
             campaign.setImmediateTransactionCode(x.getImmediateTransactionCode());
             campaign.setDescription(x.getDescription());
             campaign.setCreateEmployeeNo(x.getCreateEmployeeNo());
-            campaign.setIsParticipantList(x.getIsParticipantList());
             campaign.setCreateDttm(x.getCreateDttm());
             campaign.setUpdateDttm(x.getUpdateDttm());
             campaign.setStartDateTime(x.getStartDateTime());

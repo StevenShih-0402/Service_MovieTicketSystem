@@ -20,7 +20,6 @@ public class CampaignFormUpdateRqBo {
     private Boolean isUpdateCampaignFormParticipantList;
     private Boolean isUpdateCampaignFormGroupNode;
     private CampaignFormInfoBo campaignFormInfo;
-    private Boolean isParticipantList;
     private String customerListNo;
     private CampaignParticipantTypeEnum participantType;
     private BigInteger participantListLimit;

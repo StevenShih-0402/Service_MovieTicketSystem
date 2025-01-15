@@ -40,7 +40,6 @@ public class CampaignQueryServiceImpl implements CampaignQueryService {
                     .isImmediate(x.getIsImmediate())
                     .immediateTransactionCode(x.getImmediateTransactionCode())
                     .createEmployeeNo(x.getCreateEmployeeNo())
-                    .isParticipantList(x.getIsParticipantList())
                     .startDateTime(x.getStartDateTime())
                     .endDateTime(x.getEndDateTime())
                     .updateDttm(x.getUpdateDttm())

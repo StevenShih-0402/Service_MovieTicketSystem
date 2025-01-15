@@ -1,10 +1,8 @@
 package com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.addparticipantlist;
 
-import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantListSourceTypeEnum;
 import com.ibm.cbmp.fabric.web.api.message.ApiRequestPayload;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +11,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.List;
 
 @Data
 @SuperBuilder

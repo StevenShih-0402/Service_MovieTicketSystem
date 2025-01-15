@@ -28,7 +28,6 @@ public class CampaignFormHistoryDtoConverter {
         campaignFormHistoryDto.setGroupNodeData(campaignFormDto.getGroupNodeData());
         campaignFormHistoryDto.setCreateEmployeeNo(campaignFormDto.getCreateEmployeeNo());
         campaignFormHistoryDto.setUpdateEmployeeNo(updateEmployeeNo);
-        campaignFormHistoryDto.setIsParticipantList(campaignFormDto.getIsParticipantList());
         return campaignFormHistoryDto;
     }
 }

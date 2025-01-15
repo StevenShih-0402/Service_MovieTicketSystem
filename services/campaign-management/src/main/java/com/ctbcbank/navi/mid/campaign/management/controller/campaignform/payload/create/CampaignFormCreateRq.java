@@ -68,9 +68,6 @@ public class CampaignFormCreateRq extends ApiRequestPayload implements Serializa
     @Schema(title = "員工編號-創建者", description = "員工編號-創建者", example = "A001")
     private String createEmployeeNo;
 
-    @Schema(title = "是否有參與名單", description = "是否有參與名單", example = "true")
-    private Boolean isParticipantList;
-
     @Schema(title = "客戶名單編號", description = "客戶名單編號", example = "8158a3ed-ec33-4007-babd-c59f9a828c60")
     private String customerListNo;
 

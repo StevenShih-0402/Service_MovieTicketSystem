@@ -53,9 +53,6 @@ public class CampaignEntity extends BaseEntity implements Serializable {
     @Column(name = "CREATE_EMPLOYEE_NO", nullable = false)
     private String createEmployeeNo;
 
-    @Column(name = "IS_PARTICIPANT_LIST", nullable = false)
-    private Boolean isParticipantList;
-
     @Column(name = "CUSTOMER_LIST_NO", nullable = true)
     private String customerListNo;
 

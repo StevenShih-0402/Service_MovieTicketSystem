@@ -1,6 +1,5 @@
 package com.ctbcbank.navi.mid.campaign.management.entity;
 
-import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantListSourceTypeEnum;
 import com.ibm.cbmp.fabric.foundation.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,10 +26,6 @@ public class CampaignParticipantListEntity extends BaseEntity implements Seriali
 
     @Column(name = "IP_NO", nullable = false)
     private BigInteger ipNo;
-
-    @Column(name = "SOURCE_TYPE", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private CampaignParticipantListSourceTypeEnum sourceType;
 
     @Column(name = "CUSTOMER_LIST_NO", nullable = true)
     private String customerListNo;

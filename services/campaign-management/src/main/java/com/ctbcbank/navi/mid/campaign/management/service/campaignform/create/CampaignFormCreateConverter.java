@@ -18,7 +18,6 @@ public class CampaignFormCreateConverter {
         campaignFormCreateRqBo.setIsListing(campaignFormCreateRq.getIsListing());
         campaignFormCreateRqBo.setGroupNodeData(campaignFormCreateRq.getGroupNodeData());
         campaignFormCreateRqBo.setCreateEmployeeNo(campaignFormCreateRq.getCreateEmployeeNo());
-        campaignFormCreateRqBo.setIsParticipantList(campaignFormCreateRq.getIsParticipantList());
         campaignFormCreateRqBo.setCustomerListNo(campaignFormCreateRq.getCustomerListNo());
         campaignFormCreateRqBo.setParticipantType(campaignFormCreateRq.getParticipantType());
         campaignFormCreateRqBo.setParticipantListLimit(campaignFormCreateRq.getParticipantListLimit());
@@ -40,7 +39,6 @@ public class CampaignFormCreateConverter {
         campaignFormCreateRs.setIsListing(campaignFormCreateRsBo.getIsListing());
         campaignFormCreateRs.setGroupNodeData(campaignFormCreateRsBo.getGroupNodeData());
         campaignFormCreateRs.setCreateEmployeeNo(campaignFormCreateRsBo.getCreateEmployeeNo());
-        campaignFormCreateRs.setIsParticipantList(campaignFormCreateRsBo.getIsParticipantList());
         campaignFormCreateRs.setCustomerListNo(campaignFormCreateRsBo.getCustomerListNo());
         return campaignFormCreateRs;
     }

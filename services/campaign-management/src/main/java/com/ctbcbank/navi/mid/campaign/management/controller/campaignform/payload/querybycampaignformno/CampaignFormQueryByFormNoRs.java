@@ -29,9 +29,6 @@ public class CampaignFormQueryByFormNoRs extends ApiResponsePayload implements S
     @Schema(title = "活動表單備註清單", description = "活動表單備註清單")
     private List<CampaignFormComment> campaignFormCommentList;
 
-    @Schema(title = "行銷活動參與名單資訊", description = "行銷活動參與名單資訊")
-    private List<CampaignFormParticipantInfo> campaignFormParticipantInfoList;
-
     @Data
     @SuperBuilder
     @NoArgsConstructor
@@ -79,9 +76,6 @@ public class CampaignFormQueryByFormNoRs extends ApiResponsePayload implements S
         @Schema(title = "員工編號-創建者", description = "員工編號-創建者", example = "A001")
         private String createEmployeeNo;
 
-        @Schema(title = "是否有參與名單", description = "是否有參與名單", example = "true")
-        private Boolean isParticipantList;
-
         @Schema(title = "客戶名單編號", description = "客戶名單編號", example = "8158a3ed-ec33-4007-babd-c59f9a828c60")
         private String customerListNo;
 
@@ -116,18 +110,4 @@ public class CampaignFormQueryByFormNoRs extends ApiResponsePayload implements S
 
     }
 
-    @Data
-    @SuperBuilder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CampaignFormParticipantInfo {
-        @Schema(title = "客戶編號", description = "客戶編號", example = "CIF123456789")
-        private String cifNo;
-
-        @Schema(title = "身分證字號/統編", description = "身分證字號/統編", example = "A123456789")
-        private String idNo;
-
-        @Schema(title = "關係人號碼", description = "關係人號碼", example = "1")
-        private BigInteger ipNo;
-    }
 }

@@ -29,6 +29,5 @@ public class CampaignFormCreateRsBo {
     private Boolean isListing;
     private String groupNodeData;
     private String createEmployeeNo;
-    private Boolean isParticipantList;
     private String customerListNo;
 }

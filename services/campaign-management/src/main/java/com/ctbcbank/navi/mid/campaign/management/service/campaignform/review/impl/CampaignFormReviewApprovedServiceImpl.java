@@ -4,9 +4,6 @@ import com.ctbcbank.navi.mid.campaign.management.dao.*;
 import com.ctbcbank.navi.mid.campaign.management.dto.*;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignformhistory.CampaignFormHistoryDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignformhistory.converter.CampaignFormHistoryDtoConverter;
-import com.ctbcbank.navi.mid.campaign.management.dto.campaignformparticipantlist.CampaignFormParticipantListDto;
-import com.ctbcbank.navi.mid.campaign.management.dto.campaignformparticipantlist.QueryCampaignFormParticipantListConditionDto;
-import com.ctbcbank.navi.mid.campaign.management.dto.campaignparticipantlist.CampaignParticipantListDto;
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignFormTypeEnum;
 import com.ctbcbank.navi.mid.campaign.management.enums.ReviewStatusEnum;
 import com.ctbcbank.navi.mid.campaign.management.enums.RuleNameEnum;
@@ -50,8 +47,6 @@ public class CampaignFormReviewApprovedServiceImpl implements CampaignFormReview
     private final CampaignRuleTransactionCodeDao campaignRuleTransactionCodeDao;
     private final CampaignRuleSettingExtraDao campaignRuleSettingExtraDao;
     private final CampaignFormHistoryDao campaignFormHistoryDao;
-    private final CampaignParticipantListDao campaignParticipantListDao;
-    private final CampaignFormParticipantListDao campaignFormParticipantListDao;
     private final ObjectMapper objectMapper;
     private final CampaignFormParticipantListService campaignFormParticipantListService;
     private final PlatformTransactionManager platformTransactionManager;
@@ -146,7 +141,6 @@ public class CampaignFormReviewApprovedServiceImpl implements CampaignFormReview
         campaignDto.setImmediateTransactionCode(campaignFormDto.getImmediateTransactionCode());
         campaignDto.setIsListing(campaignFormDto.getIsListing());
         campaignDto.setCreateEmployeeNo(campaignFormDto.getCreateEmployeeNo());
-        campaignDto.setIsParticipantList(campaignFormDto.getIsParticipantList());
         campaignDto.setParticipantType(campaignFormDto.getParticipantType());
         campaignDto.setParticipantListLimit(campaignFormDto.getParticipantListLimit());
         return campaignDto;
@@ -161,7 +155,6 @@ public class CampaignFormReviewApprovedServiceImpl implements CampaignFormReview
         campaignDto.setIsImmediate(campaignFormDto.getIsImmediate());
         campaignDto.setImmediateTransactionCode(campaignFormDto.getImmediateTransactionCode());
         campaignDto.setIsListing(campaignFormDto.getIsListing());
-        campaignDto.setIsParticipantList(campaignFormDto.getIsParticipantList());
         campaignDto.setParticipantType(campaignFormDto.getParticipantType());
         campaignDto.setParticipantListLimit(campaignFormDto.getParticipantListLimit());
     }

@@ -2,8 +2,6 @@ package com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampai
 
 import com.ctbcbank.navi.mid.campaign.management.dao.*;
 import com.ctbcbank.navi.mid.campaign.management.dto.*;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignid.CampaignQueryByCampaignIdBoRs;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignid.CampaignQueryByCampaignIdServiceImpl;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
@@ -58,7 +56,6 @@ public class CampaignQueryByCampaignNoServiceImpl implements CampaignQueryByCamp
         campaignInfoBo.setStartDateTime(campaignDto.getStartDateTime());
         campaignInfoBo.setEndDateTime(campaignDto.getEndDateTime());
         campaignInfoBo.setCreateEmployeeNo(campaignDto.getCreateEmployeeNo());
-        campaignInfoBo.setIsParticipantList(campaignDto.getIsParticipantList());
         campaignInfoBo.setCustomerListNo(campaignDto.getCustomerListNo());
         campaignInfoBo.setParticipantType(campaignDto.getParticipantType());
         campaignInfoBo.setParticipantListLimit(campaignDto.getParticipantListLimit());
