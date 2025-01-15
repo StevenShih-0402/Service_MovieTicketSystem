@@ -6,6 +6,7 @@ import com.ctbcbank.navi.mid.campaign.management.dto.CampaignDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignparticipantlist.CampaignParticipantListDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignparticipantlist.QueryCampaignParticipantListConditionDto;
+import com.ctbcbank.navi.mid.campaign.management.enums.CampaignAddParticipantListStatusEnum;
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantListSourceTypeEnum;
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantTypeEnum;
 import com.ibm.cbmp.fabric.foundation.context.NaviGlobalContext;
@@ -35,7 +36,9 @@ public class CampaignAddParticipantListServiceImpl implements CampaignAddPartici
 
     @Override
     @Transactional
-    public void addParticipantList(CampaignAddParticipantListRqBo campaignAddParticipantListRqBo) {
+    public CampaignAddParticipantListRsBo addParticipantList(CampaignAddParticipantListRqBo campaignAddParticipantListRqBo) {
+        CampaignAddParticipantListRsBo campaignAddParticipantListRsBo = new CampaignAddParticipantListRsBo();
+
         String campaignNo = campaignAddParticipantListRqBo.getCampaignNo();
         BigInteger ipNo = campaignAddParticipantListRqBo.getIpNo();
         QueryCampaignConditionDto queryCampaignConditionDto = new QueryCampaignConditionDto();
@@ -55,12 +58,16 @@ public class CampaignAddParticipantListServiceImpl implements CampaignAddPartici
         List<CampaignParticipantListDto> campaignParticipantListDtoList = campaignParticipantListDao.queryCampaignParticipantList(queryCampaignParticipantListConditionDto);
         List<CampaignParticipantListDto> filterCampaignParticipantListDtoList = campaignParticipantListDtoList.stream().filter(x -> x.getIpNo().compareTo(ipNo) == 0).toList();
         if (!CollectionUtils.isEmpty(filterCampaignParticipantListDtoList)) {
-            return;
+            campaignAddParticipantListRsBo.setStatus(CampaignAddParticipantListStatusEnum.ALREADY);
+            campaignAddParticipantListRsBo.setMessage("已完成參與活動，不需重複參加。");
+            return campaignAddParticipantListRsBo;
         }
         BigInteger participantListLimit = campaignDto.getParticipantListLimit();
         BigInteger participantListCount = BigInteger.valueOf(campaignParticipantListDtoList.size() + 1);
         if (participantListCount.compareTo(participantListLimit) > 0) {
-            throw new NaviException(FabricResponseCode.INVALID_DATA, "Over ParticipantListLimit.(" + participantListLimit + "," + participantListCount + ")");
+            campaignAddParticipantListRsBo.setStatus(CampaignAddParticipantListStatusEnum.NOT_ELIGIBLE);
+            campaignAddParticipantListRsBo.setMessage("超過參與人數限制。");
+            return campaignAddParticipantListRsBo;
         }
         String participantListVersion = campaignDto.getParticipantListVersion();
 
@@ -70,7 +77,9 @@ public class CampaignAddParticipantListServiceImpl implements CampaignAddPartici
         campaignParticipantListDto.setSourceType(CampaignParticipantListSourceTypeEnum.ONLINE_CLICK);
         campaignParticipantListDto.setParticipantListVersion(participantListVersion);
         campaignParticipantListDao.saveCampaignParticipantList(campaignParticipantListDto);
-
+        campaignAddParticipantListRsBo.setStatus(CampaignAddParticipantListStatusEnum.COMPLETED);
+        campaignAddParticipantListRsBo.setMessage("完成活動參與。");
+        return campaignAddParticipantListRsBo;
     }
 
 }

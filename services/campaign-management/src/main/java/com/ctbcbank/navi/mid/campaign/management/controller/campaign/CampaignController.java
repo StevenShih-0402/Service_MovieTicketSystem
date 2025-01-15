@@ -2,9 +2,11 @@ package com.ctbcbank.navi.mid.campaign.management.controller.campaign;
 
 import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.*;
 import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.addparticipantlist.CampaignAddParticipantListRq;
+import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.addparticipantlist.CampaignAddParticipantListRs;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.*;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipantlist.CampaignAddParticipantListConverter;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipantlist.CampaignAddParticipantListRqBo;
+import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipantlist.CampaignAddParticipantListRsBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipantlist.CampaignAddParticipantListService;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.create.CampaignCreateRqBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.create.CampaignCreateRsBo;
@@ -175,10 +177,11 @@ public class CampaignController {
 
     @Operation(summary = "新增參與名單", description = "新增參與名單")
     @PostApiMapping(value = "add/participant-list")
-    ApiResponsePayload addParticipantList(@Valid @RequestBody CampaignAddParticipantListRq campaignAddParticipantListRq) {
+    CampaignAddParticipantListRs addParticipantList(@Valid @RequestBody CampaignAddParticipantListRq campaignAddParticipantListRq) {
         CampaignAddParticipantListRqBo campaignAddParticipantListRqBo = CampaignAddParticipantListConverter.parseRqToRqBo(campaignAddParticipantListRq);
-        campaignAddParticipantListService.addParticipantList(campaignAddParticipantListRqBo);
-        return new ApiResponsePayload();
+        CampaignAddParticipantListRsBo campaignAddParticipantListRsBo = campaignAddParticipantListService.addParticipantList(campaignAddParticipantListRqBo);
+        CampaignAddParticipantListRs campaignAddParticipantListRs = CampaignAddParticipantListConverter.parseRsBoToRs(campaignAddParticipantListRsBo);
+        return campaignAddParticipantListRs;
     }
 
 }
