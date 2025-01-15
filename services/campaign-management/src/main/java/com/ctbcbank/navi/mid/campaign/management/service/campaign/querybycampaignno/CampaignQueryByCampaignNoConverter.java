@@ -1,9 +1,7 @@
 package com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignno;
 
-import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.CampaignQueryByCampaignIdRs;
 import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.CampaignQueryByCampaignNoRq;
 import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.CampaignQueryByCampaignNoRs;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignid.CampaignQueryByCampaignIdBoRs;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -37,7 +35,6 @@ public class CampaignQueryByCampaignNoConverter {
         campaignInfo.setStartDateTime(campaignInfoBo.getStartDateTime());
         campaignInfo.setEndDateTime(campaignInfoBo.getEndDateTime());
         campaignInfo.setCreateEmployeeNo(campaignInfoBo.getCreateEmployeeNo());
-        campaignInfo.setIsParticipantList(campaignInfoBo.getIsParticipantList());
         campaignInfo.setCustomerListNo(campaignInfoBo.getCustomerListNo());
         campaignInfo.setParticipantType(campaignInfoBo.getParticipantType());
         campaignInfo.setParticipantListLimit(campaignInfoBo.getParticipantListLimit());

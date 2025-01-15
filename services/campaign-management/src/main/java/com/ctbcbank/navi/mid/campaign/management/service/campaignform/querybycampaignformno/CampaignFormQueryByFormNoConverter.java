@@ -19,7 +19,6 @@ public class CampaignFormQueryByFormNoConverter {
         CampaignFormQueryByFormNoRs campaignQueryByFormNoRs = new CampaignFormQueryByFormNoRs();
         campaignQueryByFormNoRs.setCampaignFormInfo(getCampaignFormInfo(campaignFormQueryByFormNoRsBo.getCampaignFormInfo()));
         campaignQueryByFormNoRs.setCampaignFormCommentList(getCampaignFormCommentList(campaignFormQueryByFormNoRsBo.getCampaignFormCommentList()));
-        campaignQueryByFormNoRs.setCampaignFormParticipantInfoList(getCampaignFormParticipantInfoList(campaignFormQueryByFormNoRsBo.getCampaignFormParticipantInfoList()));
         return campaignQueryByFormNoRs;
     }
 
@@ -39,7 +38,6 @@ public class CampaignFormQueryByFormNoConverter {
         campaignFormInfo.setIsListing(campaignFormInfoBo.getIsListing());
         campaignFormInfo.setGroupNodeData(campaignFormInfoBo.getGroupNodeData());
         campaignFormInfo.setCreateEmployeeNo(campaignFormInfoBo.getCreateEmployeeNo());
-        campaignFormInfo.setIsParticipantList(campaignFormInfoBo.getIsParticipantList());
         campaignFormInfo.setCustomerListNo(campaignFormInfoBo.getCustomerListNo());
         campaignFormInfo.setParticipantType(campaignFormInfoBo.getParticipantType());
         campaignFormInfo.setParticipantListLimit(campaignFormInfoBo.getParticipantListLimit());
@@ -62,21 +60,5 @@ public class CampaignFormQueryByFormNoConverter {
         }).toList();
         return campaignFormCommentList;
     }
-
-    private static List<CampaignFormQueryByFormNoRs.CampaignFormParticipantInfo> getCampaignFormParticipantInfoList(List<CampaignFormQueryByFormNoRsBo.CampaignFormParticipantInfoBo> campaignFormParticipantInfoBoList) {
-        List<CampaignFormQueryByFormNoRs.CampaignFormParticipantInfo> campaignFormParticipantInfoList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(campaignFormParticipantInfoBoList)) {
-            return campaignFormParticipantInfoList;
-        }
-        campaignFormParticipantInfoList = campaignFormParticipantInfoBoList.stream().map(x -> {
-            CampaignFormQueryByFormNoRs.CampaignFormParticipantInfo campaignFormParticipantInfo = new CampaignFormQueryByFormNoRs.CampaignFormParticipantInfo();
-            campaignFormParticipantInfo.setCifNo(x.getCifNo());
-            campaignFormParticipantInfo.setIdNo(x.getIdNo());
-            campaignFormParticipantInfo.setIpNo(x.getIpNo());
-            return campaignFormParticipantInfo;
-        }).toList();
-        return campaignFormParticipantInfoList;
-    }
-
 
 }

@@ -2,12 +2,10 @@ package com.ctbcbank.navi.mid.campaign.management.service.campaignform.update;
 
 import com.ctbcbank.navi.mid.campaign.management.dao.CampaignFormDao;
 import com.ctbcbank.navi.mid.campaign.management.dao.CampaignFormHistoryDao;
-import com.ctbcbank.navi.mid.campaign.management.dao.CampaignFormParticipantListDao;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignFormConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.CampaignFormDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignformhistory.CampaignFormHistoryDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignformhistory.converter.CampaignFormHistoryDtoConverter;
-import com.ctbcbank.navi.mid.campaign.management.dto.campaignformparticipantlist.CampaignFormParticipantListDto;
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantTypeEnum;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
@@ -16,7 +14,6 @@ import com.ibm.cbmp.fabric.foundation.utils.UUIDUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,7 +25,6 @@ public class CampaignFormUpdateServiceImpl implements CampaignFormUpdateService 
     private final String CLASS_NAME = CampaignFormUpdateServiceImpl.class.getSimpleName();
     private final CampaignFormDao campaignFormDao;
     private final CampaignFormHistoryDao campaignFormHistoryDao;
-    private final CampaignFormParticipantListDao campaignFormParticipantListDao;
 
     @Override
     public CampaignFormUpdateRsBo update(CampaignFormUpdateRqBo campaignFormUpdateRqBo) {

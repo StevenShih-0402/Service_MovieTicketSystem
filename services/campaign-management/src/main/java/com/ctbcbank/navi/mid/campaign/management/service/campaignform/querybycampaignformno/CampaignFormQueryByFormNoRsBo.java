@@ -19,7 +19,6 @@ import java.util.List;
 public class CampaignFormQueryByFormNoRsBo {
     private CampaignFormInfoBo campaignFormInfo;
     private List<CampaignFormCommentBo> campaignFormCommentList;
-    private List<CampaignFormParticipantInfoBo> campaignFormParticipantInfoList;
 
     @Data
     @SuperBuilder
@@ -54,8 +53,6 @@ public class CampaignFormQueryByFormNoRsBo {
 
         private String createEmployeeNo;
 
-        private Boolean isParticipantList;
-
         private String customerListNo;
 
         private CampaignParticipantTypeEnum participantType;
@@ -79,18 +76,6 @@ public class CampaignFormQueryByFormNoRsBo {
 
         private LocalDateTime updateDttm;
 
-    }
-
-    @Data
-    @SuperBuilder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CampaignFormParticipantInfoBo {
-        private String cifNo;
-
-        private String idNo;
-
-        private BigInteger ipNo;
     }
 
 }

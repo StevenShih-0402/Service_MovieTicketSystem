@@ -95,7 +95,6 @@ public class CampaignParticipantListDao {
                 , UPDATE_DTTM
                 , CAMPAIGN_NO
                 , IP_NO
-                , SOURCE_TYPE
                 , CUSTOMER_LIST_NO
                 , PARTICIPANT_LIST_VERSION
                 )
@@ -107,16 +106,14 @@ public class CampaignParticipantListDao {
                 , ?
                 , ?
                 , ?
-                , ?
                 )
                 """;
 
         jdbcTemplate.batchUpdate(sql, campaignParticipantListDtoList, batchSize, (ps, argument) -> {
             ps.setString(1, argument.getCampaignNo());
             ps.setLong(2, argument.getIpNo().longValue());
-            ps.setString(3, argument.getSourceType().getCode());
-            ps.setString(4, argument.getCustomerListNo());
-            ps.setString(5, argument.getParticipantListVersion());
+            ps.setString(3, argument.getCustomerListNo());
+            ps.setString(4, argument.getParticipantListVersion());
         });
     }
 

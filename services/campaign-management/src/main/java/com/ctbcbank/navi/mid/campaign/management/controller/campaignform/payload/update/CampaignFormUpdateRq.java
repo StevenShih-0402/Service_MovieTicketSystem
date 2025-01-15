@@ -43,9 +43,6 @@ public class CampaignFormUpdateRq extends ApiRequestPayload implements Serializa
     @Schema(title = "行銷活動資訊", description = "行銷活動資訊")
     private CampaignFormInfo campaignFormInfo;
 
-    @Schema(title = "是否有參與名單", description = "是否有參與名單", example = "true")
-    private Boolean isParticipantList;
-
     @Schema(title = "客戶名單編號", description = "客戶名單編號", example = "8158a3ed-ec33-4007-babd-c59f9a828c60")
     private String customerListNo;
 

@@ -70,7 +70,4 @@ public class CampaignFormHistoryEntity extends BaseEntity implements Serializabl
     @Column(name = "UPDATE_EMPLOYEE_NO", nullable = false)
     private String updateEmployeeNo;
 
-    @Column(name = "IS_PARTICIPANT_LIST", nullable = false)
-    private Boolean isParticipantList;
-
 }

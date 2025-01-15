@@ -3,7 +3,6 @@ package com.ctbcbank.navi.mid.campaign.management.service.campaign.createcouponr
 import com.ctbcbank.navi.mid.campaign.management.dao.CampaignCouponRequestFormDao;
 import com.ctbcbank.navi.mid.campaign.management.dto.CampaignCouponRequestFormDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignCouponRequestFormConditionDto;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignid.CampaignQueryByCampaignIdServiceImpl;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

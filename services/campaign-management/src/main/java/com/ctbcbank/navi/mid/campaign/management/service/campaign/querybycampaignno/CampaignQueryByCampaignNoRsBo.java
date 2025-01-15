@@ -49,8 +49,6 @@ public class CampaignQueryByCampaignNoRsBo {
 
         private String createEmployeeNo;
 
-        private Boolean isParticipantList;
-
         private String customerListNo;
 
         private CampaignParticipantTypeEnum participantType;

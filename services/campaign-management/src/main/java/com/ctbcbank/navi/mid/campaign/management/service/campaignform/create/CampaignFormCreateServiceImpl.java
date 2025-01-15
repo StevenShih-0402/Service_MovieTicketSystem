@@ -53,7 +53,6 @@ public class CampaignFormCreateServiceImpl implements CampaignFormCreateService 
         campaignFormDto.setIsListing(campaignFormCreateRqBo.getIsListing());
         campaignFormDto.setGroupNodeData(campaignFormCreateRqBo.getGroupNodeData());
         campaignFormDto.setCreateEmployeeNo(campaignFormCreateRqBo.getCreateEmployeeNo());
-        campaignFormDto.setIsParticipantList(campaignFormCreateRqBo.getIsParticipantList());
         campaignFormDto.setCustomerListNo(campaignFormCreateRqBo.getCustomerListNo());
         campaignFormDto.setParticipantType(campaignFormCreateRqBo.getParticipantType());
         campaignFormDto.setParticipantListLimit(campaignFormCreateRqBo.getParticipantListLimit());
@@ -75,7 +74,6 @@ public class CampaignFormCreateServiceImpl implements CampaignFormCreateService 
         campaignFormCreateRsBo.setIsListing(campaignFormDto.getIsListing());
         campaignFormCreateRsBo.setGroupNodeData(campaignFormDto.getGroupNodeData());
         campaignFormCreateRsBo.setCreateEmployeeNo(campaignFormDto.getCreateEmployeeNo());
-        campaignFormCreateRsBo.setIsParticipantList(campaignFormDto.getIsParticipantList());
         campaignFormCreateRsBo.setCustomerListNo(campaignFormDto.getCustomerListNo());
         return campaignFormCreateRsBo;
     }

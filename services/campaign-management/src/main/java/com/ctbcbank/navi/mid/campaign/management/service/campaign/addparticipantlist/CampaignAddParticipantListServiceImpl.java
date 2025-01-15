@@ -7,22 +7,16 @@ import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignparticipantlist.CampaignParticipantListDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignparticipantlist.QueryCampaignParticipantListConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignAddParticipantListStatusEnum;
-import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantListSourceTypeEnum;
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantTypeEnum;
-import com.ibm.cbmp.fabric.foundation.context.NaviGlobalContext;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
-import com.ibm.cbmp.fabric.foundation.utils.ObjectUtils;
-import com.ibm.cbmp.fabric.foundation.utils.StringUtils;
-import com.ibm.cbmp.fabric.foundation.utils.UUIDUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,7 +26,6 @@ public class CampaignAddParticipantListServiceImpl implements CampaignAddPartici
     private final String CLASS_NAME = CampaignAddParticipantListServiceImpl.class.getSimpleName();
     private final CampaignDao campaignDao;
     private final CampaignParticipantListDao campaignParticipantListDao;
-    private final String CAMPAIGN_INSERT_BATCH_SIZE = "campaign.insert-batch-size";
 
     @Override
     @Transactional
@@ -74,7 +67,6 @@ public class CampaignAddParticipantListServiceImpl implements CampaignAddPartici
         CampaignParticipantListDto campaignParticipantListDto = new CampaignParticipantListDto();
         campaignParticipantListDto.setCampaignNo(campaignNo);
         campaignParticipantListDto.setIpNo(ipNo);
-        campaignParticipantListDto.setSourceType(CampaignParticipantListSourceTypeEnum.ONLINE_CLICK);
         campaignParticipantListDto.setParticipantListVersion(participantListVersion);
         campaignParticipantListDao.saveCampaignParticipantList(campaignParticipantListDto);
         campaignAddParticipantListRsBo.setStatus(CampaignAddParticipantListStatusEnum.COMPLETED);

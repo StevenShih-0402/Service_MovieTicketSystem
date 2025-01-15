@@ -19,10 +19,6 @@ import com.ctbcbank.navi.mid.campaign.management.service.campaign.query.Campaign
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.query.CampaignQueryRqBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.query.CampaignQueryRsBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.query.CampaignQueryService;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignid.CampaignQueryByCampaignIdBoRq;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignid.CampaignQueryByCampaignIdBoRs;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignid.CampaignQueryByCampaignIdConverter;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignid.CampaignQueryByCampaignIdService;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignno.CampaignQueryByCampaignNoConverter;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignno.CampaignQueryByCampaignNoRqBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignno.CampaignQueryByCampaignNoRsBo;
@@ -58,7 +54,6 @@ public class CampaignController {
 
     private final CampaignService campaignService;
     private final CampaignQueryService campaignQueryService;
-    private final CampaignQueryByCampaignIdService campaignQueryByCampaignIdService;
     private final CampaignCreateCouponTemplateService campaignCreateCouponTemplateService;
     private final CampaignQueryCouponTemplateService campaignQueryCouponTemplateService;
     private final CampaignQueryByCampaignNoService campaignQueryByCampaignNoService;
@@ -91,15 +86,6 @@ public class CampaignController {
         CampaignQueryRsBo campaignQueryRsBo = campaignQueryService.query(campaignQueryRqBo);
         CampaignQueryRs campaignQueryRs = CampaignQueryConverter.parseRsBoToRs(campaignQueryRsBo);
         return campaignQueryRs;
-    }
-
-    @Operation(summary = "查詢 行銷活動 By Campaign ID", description = "查詢 行銷活動 By Campaign ID")
-    @GetApiMapping("/query/by-campaign-id")
-    CampaignQueryByCampaignIdRs queryByCampaignId(@Valid @ParameterObject CampaignQueryByCampaignIdRq campaignQueryByCampaignIdRq) {
-        CampaignQueryByCampaignIdBoRq campaignQueryByCampaignIdBoRq = CampaignQueryByCampaignIdConverter.parseRqToBoRq(campaignQueryByCampaignIdRq);
-        CampaignQueryByCampaignIdBoRs campaignQueryByCampaignIdBoRs = campaignQueryByCampaignIdService.queryByCampaignId(campaignQueryByCampaignIdBoRq);
-        CampaignQueryByCampaignIdRs campaignQueryByCampaignIdRs = CampaignQueryByCampaignIdConverter.parseBoRsToRs(campaignQueryByCampaignIdBoRs);
-        return campaignQueryByCampaignIdRs;
     }
 
     @Operation(summary = "新增 活動-優惠券樣板", description = "新增 活動-優惠券樣板")

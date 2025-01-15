@@ -11,7 +11,6 @@ import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignFormConditionD
 import com.ctbcbank.navi.mid.campaign.management.dto.campaigncustomerlistdetail.CampaignCustomerListDetailDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaigncustomerlistdetail.QueryCampaignCustomerListDetailConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignparticipantlist.CampaignParticipantListDto;
-import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantListSourceTypeEnum;
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantTypeEnum;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
@@ -57,7 +56,6 @@ public class CampaignFormParticipantListServiceImpl implements CampaignFormParti
             throw new NaviException(FabricResponseCode.DATA_DUPLICATE, "CampaignFormNo: " + campaignFormNo);
         }
         CampaignFormDto campaignFormDto = campaignFormDtoList.get(0);
-        Boolean campaignFormIsParticipantList = campaignFormDto.getIsParticipantList();
         String campaignFormCustomerListNo = campaignFormDto.getCustomerListNo();
         String campaignFormParticipantListVersion = campaignFormDto.getParticipantListVersion();
         CampaignParticipantTypeEnum campaignFormParticipantType = campaignFormDto.getParticipantType();
@@ -83,7 +81,6 @@ public class CampaignFormParticipantListServiceImpl implements CampaignFormParti
         if (campaignFormParticipantType.compareTo(CampaignParticipantTypeEnum.FREE) == 0) {
             String campaignParticipantListVersion = campaignDto.getParticipantListVersion();
             campaignDto.setParticipantType(campaignFormParticipantType);
-            campaignDto.setIsParticipantList(false);
             campaignDto.setCustomerListNo(null);
             campaignDto.setParticipantListLimit(null);
             campaignDto.setParticipantListVersion(null);
@@ -96,7 +93,6 @@ public class CampaignFormParticipantListServiceImpl implements CampaignFormParti
         if (campaignFormParticipantType.compareTo(CampaignParticipantTypeEnum.ONLINE) == 0) {
             String campaignParticipantListVersion = campaignDto.getParticipantListVersion();
             campaignDto.setParticipantType(campaignFormParticipantType);
-            campaignDto.setIsParticipantList(true);
             campaignDto.setCustomerListNo(null);
             campaignDto.setParticipantListLimit(campaignFormParticipantListLimit);
             campaignDto.setParticipantListVersion(campaignFormParticipantListVersion);
@@ -117,7 +113,6 @@ public class CampaignFormParticipantListServiceImpl implements CampaignFormParti
         insertCampaignParticipantList(campaignFormDto, campaignDto, campaignParticipantListDtoList);
 
         campaignDto.setParticipantType(campaignFormParticipantType);
-        campaignDto.setIsParticipantList(true);
         campaignDto.setCustomerListNo(campaignFormCustomerListNo);
         campaignDto.setParticipantListLimit(null);
         campaignDto.setParticipantListVersion(campaignFormParticipantListVersion);
@@ -150,7 +145,6 @@ public class CampaignFormParticipantListServiceImpl implements CampaignFormParti
             CampaignParticipantListDto campaignParticipantListDto = new CampaignParticipantListDto();
             campaignParticipantListDto.setCampaignNo(campaignFormDto.getCampaignNo());
             campaignParticipantListDto.setIpNo(x.getChosenIpNo());
-            campaignParticipantListDto.setSourceType(CampaignParticipantListSourceTypeEnum.CUSTOMER_LIST);
             campaignParticipantListDto.setCustomerListNo(campaignFormDto.getCustomerListNo());
             campaignParticipantListDto.setParticipantListVersion(campaignFormDto.getParticipantListVersion());
             return campaignParticipantListDto;
@@ -167,7 +161,6 @@ public class CampaignFormParticipantListServiceImpl implements CampaignFormParti
         // 批次insert
         campaignParticipantListDao.saveCampaignParticipantList(campaignParticipantListDtoList, 100);
         String campaignParticipantListVersion = campaignDto.getParticipantListVersion();
-        campaignDto.setIsParticipantList(true);
         campaignDto.setCustomerListNo(campaignFormDto.getCustomerListNo());
         campaignDto.setParticipantListVersion(campaignFormDto.getParticipantListVersion());
         updateCampaign(campaignDto);

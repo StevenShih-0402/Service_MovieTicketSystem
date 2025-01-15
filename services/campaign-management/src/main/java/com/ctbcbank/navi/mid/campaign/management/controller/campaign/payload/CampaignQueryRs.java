@@ -60,9 +60,6 @@ public class CampaignQueryRs extends ApiResponsePayload implements Serializable 
         @Schema(title = "員工編號-創建者", description = "員工編號-創建者", example = "A001")
         private String createEmployeeNo;
 
-        @Schema(title = "是否有參與名單", description = "是否有參與名單", example = "true")
-        private Boolean isParticipantList;
-
         @Schema(title = "建立時間", description = "建立時間")
         private LocalDateTime createDttm;
 

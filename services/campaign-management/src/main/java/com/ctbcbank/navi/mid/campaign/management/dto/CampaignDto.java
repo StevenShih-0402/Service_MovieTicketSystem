@@ -22,7 +22,6 @@ public class CampaignDto extends BaseDto {
     private String immediateTransactionCode;
     private Boolean isListing;
     private String createEmployeeNo;
-    private Boolean isParticipantList;
     private String customerListNo;
     private String participantListVersion;
     private CampaignParticipantTypeEnum participantType;

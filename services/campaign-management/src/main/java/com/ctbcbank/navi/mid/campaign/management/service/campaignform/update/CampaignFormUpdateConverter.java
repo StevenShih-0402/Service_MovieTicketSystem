@@ -18,7 +18,6 @@ public class CampaignFormUpdateConverter {
         campaignFormUpdateRqBo.setIsUpdateCampaignFormParticipantList(campaignFormUpdateRq.getIsUpdateCampaignFormParticipantList());
         campaignFormUpdateRqBo.setIsUpdateCampaignFormGroupNode(campaignFormUpdateRq.getIsUpdateCampaignFormGroupNode());
         campaignFormUpdateRqBo.setCampaignFormInfo(getCampaignFormInfoBo(campaignFormUpdateRq.getCampaignFormInfo()));
-        campaignFormUpdateRqBo.setIsParticipantList(campaignFormUpdateRq.getIsParticipantList());
         campaignFormUpdateRqBo.setCustomerListNo(campaignFormUpdateRq.getCustomerListNo());
         campaignFormUpdateRqBo.setParticipantType(campaignFormUpdateRq.getParticipantType());
         campaignFormUpdateRqBo.setParticipantListLimit(campaignFormUpdateRq.getParticipantListLimit());

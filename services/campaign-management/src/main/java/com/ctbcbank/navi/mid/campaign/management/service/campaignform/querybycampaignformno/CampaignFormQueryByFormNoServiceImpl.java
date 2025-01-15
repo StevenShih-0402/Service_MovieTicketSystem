@@ -2,13 +2,10 @@ package com.ctbcbank.navi.mid.campaign.management.service.campaignform.querybyca
 
 import com.ctbcbank.navi.mid.campaign.management.dao.CampaignFormCommentDao;
 import com.ctbcbank.navi.mid.campaign.management.dao.CampaignFormDao;
-import com.ctbcbank.navi.mid.campaign.management.dao.CampaignFormParticipantListDao;
 import com.ctbcbank.navi.mid.campaign.management.dto.CampaignFormCommentDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignFormCommentConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignFormConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.CampaignFormDto;
-import com.ctbcbank.navi.mid.campaign.management.dto.campaignformparticipantlist.CampaignFormParticipantListDto;
-import com.ctbcbank.navi.mid.campaign.management.dto.campaignformparticipantlist.QueryCampaignFormParticipantListConditionDto;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
@@ -27,7 +24,6 @@ public class CampaignFormQueryByFormNoServiceImpl implements CampaignFormQueryBy
     private final String CLASS_NAME = CampaignFormQueryByFormNoServiceImpl.class.getSimpleName();
     private final CampaignFormDao campaignFormDao;
     private final CampaignFormCommentDao campaignFormCommentDao;
-    private final CampaignFormParticipantListDao campaignFormParticipantListDao;
 
 
     @Override
@@ -49,18 +45,9 @@ public class CampaignFormQueryByFormNoServiceImpl implements CampaignFormQueryBy
         queryCampaignFormCommentConditionDto.setCampaignFormNoList(Collections.singletonList(campaignFormNo));
         List<CampaignFormCommentDto> campaignFormCommentDtoList = campaignFormCommentDao.queryCampaignFormComment(queryCampaignFormCommentConditionDto);
 
-        // 參與名單
-        List<CampaignFormParticipantListDto> campaignFormParticipantListDtoList = new ArrayList<>();
-        if (campaignFormDto.getIsParticipantList()) {
-            QueryCampaignFormParticipantListConditionDto queryCampaignFormParticipantListConditionDto = new QueryCampaignFormParticipantListConditionDto();
-            queryCampaignFormParticipantListConditionDto.setCampaignFormNo(campaignFormNo);
-            campaignFormParticipantListDtoList = campaignFormParticipantListDao.queryCampaignFormParticipantList(queryCampaignFormParticipantListConditionDto);
-        }
-
         CampaignFormQueryByFormNoRsBo campaignFormQueryByFormNoRsBo = new CampaignFormQueryByFormNoRsBo();
         campaignFormQueryByFormNoRsBo.setCampaignFormInfo(getCampaignFormInfo(campaignFormDto));
         campaignFormQueryByFormNoRsBo.setCampaignFormCommentList(getCampaignFormCommentBoList(campaignFormCommentDtoList));
-        campaignFormQueryByFormNoRsBo.setCampaignFormParticipantInfoList(getCampaignFormParticipantInfoBoList(campaignFormParticipantListDtoList));
         return campaignFormQueryByFormNoRsBo;
     }
 
@@ -80,7 +67,6 @@ public class CampaignFormQueryByFormNoServiceImpl implements CampaignFormQueryBy
         campaignFormInfo.setIsListing(campaignFormDto.getIsListing());
         campaignFormInfo.setGroupNodeData(campaignFormDto.getGroupNodeData());
         campaignFormInfo.setCreateEmployeeNo(campaignFormDto.getCreateEmployeeNo());
-        campaignFormInfo.setIsParticipantList(campaignFormDto.getIsParticipantList());
         campaignFormInfo.setCustomerListNo(campaignFormDto.getCustomerListNo());
         campaignFormInfo.setParticipantType(campaignFormDto.getParticipantType());
         campaignFormInfo.setParticipantListLimit(campaignFormDto.getParticipantListLimit());
@@ -104,18 +90,4 @@ public class CampaignFormQueryByFormNoServiceImpl implements CampaignFormQueryBy
         return campaignFormCommentBoList;
     }
 
-    private List<CampaignFormQueryByFormNoRsBo.CampaignFormParticipantInfoBo> getCampaignFormParticipantInfoBoList(List<CampaignFormParticipantListDto> campaignFormParticipantListDtoList) {
-        List<CampaignFormQueryByFormNoRsBo.CampaignFormParticipantInfoBo> campaignFormParticipantInfoBoList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(campaignFormParticipantListDtoList)) {
-            return campaignFormParticipantInfoBoList;
-        }
-        campaignFormParticipantInfoBoList = campaignFormParticipantListDtoList.stream().map(x -> {
-            CampaignFormQueryByFormNoRsBo.CampaignFormParticipantInfoBo campaignFormParticipantInfoBo = new CampaignFormQueryByFormNoRsBo.CampaignFormParticipantInfoBo();
-            campaignFormParticipantInfoBo.setCifNo(x.getCifNo());
-            campaignFormParticipantInfoBo.setIdNo(x.getIdNo());
-            campaignFormParticipantInfoBo.setIpNo(x.getIpNo());
-            return campaignFormParticipantInfoBo;
-        }).toList();
-        return campaignFormParticipantInfoBoList;
-    }
 }
