@@ -6,7 +6,6 @@ import com.ctbcbank.navi.mid.campaign.management.dto.CampaignDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.CampaignRuleTransactionCodeDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignRuleTransactionCodeConditionDto;
-import com.ctbcbank.navi.mid.campaign.management.enums.CampaignStatus;
 import com.ctbcbank.navi.mid.campaign.management.utils.StreamUtils;
 import com.ctbcbank.navi.mid.campaign.management.vo.RuleEngine;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;

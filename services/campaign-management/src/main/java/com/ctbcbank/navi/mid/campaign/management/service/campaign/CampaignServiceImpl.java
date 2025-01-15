@@ -5,7 +5,6 @@ import com.ctbcbank.navi.mid.campaign.management.dto.*;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignparticipantlist.CampaignParticipantListDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaignparticipantlist.QueryCampaignParticipantListConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignParticipantTypeEnum;
-import com.ctbcbank.navi.mid.campaign.management.enums.CampaignStatus;
 import com.ctbcbank.navi.mid.campaign.management.enums.ExchangeExtraRuleEnum;
 import com.ctbcbank.navi.mid.campaign.management.enums.TransactionCodeEnum;
 import com.ctbcbank.navi.mid.campaign.management.utils.StreamUtils;

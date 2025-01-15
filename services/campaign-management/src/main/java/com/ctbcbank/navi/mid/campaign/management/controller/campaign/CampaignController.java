@@ -8,10 +8,6 @@ import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipant
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipantlist.CampaignAddParticipantListRqBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipantlist.CampaignAddParticipantListRsBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipantlist.CampaignAddParticipantListService;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.create.CampaignCreateRqBo;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.create.CampaignCreateRsBo;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.create.CreateCampaignConverter;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.create.CreateCampaignService;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.createcouponrequestform.CampaignCreateCouponRequestFormConverter;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.createcouponrequestform.CampaignCreateCouponRequestFormRqBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.createcouponrequestform.CampaignCreateCouponRequestFormService;
@@ -39,15 +35,10 @@ import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycoupontem
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycoupontemplate.CampaignQueryCouponTemplateRqBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycoupontemplate.CampaignQueryCouponTemplateRsBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycoupontemplate.CampaignQueryCouponTemplateService;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.update.CampaignUpdateConverter;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.update.CampaignUpdateRqBo;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.update.CampaignUpdateRsBo;
-import com.ctbcbank.navi.mid.campaign.management.service.campaign.update.CampaignUpdateService;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
 import com.ibm.cbmp.fabric.web.api.annotation.GetApiMapping;
 import com.ibm.cbmp.fabric.web.api.annotation.PostApiMapping;
-import com.ibm.cbmp.fabric.web.api.annotation.PutApiMapping;
 import com.ibm.cbmp.fabric.web.api.message.ApiResponsePayload;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -66,10 +57,8 @@ import java.util.Optional;
 public class CampaignController {
 
     private final CampaignService campaignService;
-    private final CreateCampaignService createCampaignService;
     private final CampaignQueryService campaignQueryService;
     private final CampaignQueryByCampaignIdService campaignQueryByCampaignIdService;
-    private final CampaignUpdateService campaignUpdateService;
     private final CampaignCreateCouponTemplateService campaignCreateCouponTemplateService;
     private final CampaignQueryCouponTemplateService campaignQueryCouponTemplateService;
     private final CampaignQueryByCampaignNoService campaignQueryByCampaignNoService;
@@ -86,15 +75,6 @@ public class CampaignController {
         QueryRuleEngineTreeByConditionResponseBo queryRuleEngineTreeByConditionResponseBo = campaignService.queryRuleEngineTreeByCondition(queryRuleEngineTreeByConditionRequestBo);
         return QueryRuleEngineTreeByConditionResponse.parseToResponse(queryRuleEngineTreeByConditionResponseBo);
     }
-
-    @Operation(summary = "新增 行銷活動", description = "新增 行銷活動")
-    @PostApiMapping(value = "create")
-    CampaignCreateRs create(@Valid @RequestBody CampaignCreateRq campaignCreateRq) {
-        CampaignCreateRqBo campaignCreateRqBo = CreateCampaignConverter.parseToBo(campaignCreateRq);
-        CampaignCreateRsBo campaignCreateRsBo = createCampaignService.create(campaignCreateRqBo);
-        return CreateCampaignConverter.parseToRs(campaignCreateRsBo);
-    }
-
 
     @Operation(summary = "查詢 行銷活動條件", description = "查詢 行銷活動條件")
     @PostApiMapping(value = "query-rule")
@@ -120,15 +100,6 @@ public class CampaignController {
         CampaignQueryByCampaignIdBoRs campaignQueryByCampaignIdBoRs = campaignQueryByCampaignIdService.queryByCampaignId(campaignQueryByCampaignIdBoRq);
         CampaignQueryByCampaignIdRs campaignQueryByCampaignIdRs = CampaignQueryByCampaignIdConverter.parseBoRsToRs(campaignQueryByCampaignIdBoRs);
         return campaignQueryByCampaignIdRs;
-    }
-
-    @Operation(summary = "更新行銷活動", description = "更新行銷活動")
-    @PutApiMapping("update")
-    CampaignUpdateRs update(@Valid @RequestBody CampaignUpdateRq campaignUpdateRq) {
-        CampaignUpdateRqBo campaignUpdateRqBo = CampaignUpdateConverter.parseRqToRqBo(campaignUpdateRq);
-        CampaignUpdateRsBo campaignUpdateRsBo = campaignUpdateService.update(campaignUpdateRqBo);
-        CampaignUpdateRs campaignUpdateRs = CampaignUpdateConverter.parseRsBoToRs(campaignUpdateRsBo);
-        return campaignUpdateRs;
     }
 
     @Operation(summary = "新增 活動-優惠券樣板", description = "新增 活動-優惠券樣板")
