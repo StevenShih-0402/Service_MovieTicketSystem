@@ -4,7 +4,6 @@ import com.ctbcbank.navi.mid.campaign.management.dao.CampaignDao;
 import com.ctbcbank.navi.mid.campaign.management.dao.CampaignRuleSettingExtraDao;
 import com.ctbcbank.navi.mid.campaign.management.dao.CampaignRuleTransactionCodeDao;
 import com.ctbcbank.navi.mid.campaign.management.dto.*;
-import com.ctbcbank.navi.mid.campaign.management.enums.CampaignStatus;
 import com.ctbcbank.navi.mid.campaign.management.utils.StreamUtils;
 import com.ctbcbank.navi.mid.campaign.management.vo.RuleEngine;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
