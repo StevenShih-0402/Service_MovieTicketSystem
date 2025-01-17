@@ -17,9 +17,10 @@ public class QueryCampaignConditionDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private BigInteger id;
+    private List<BigInteger> idList;
 
     private String campaignNo;
-
+    private String campaignNameLike;
     private LocalDateTime campaignDateTime;
 
     private List<String> categoryList;

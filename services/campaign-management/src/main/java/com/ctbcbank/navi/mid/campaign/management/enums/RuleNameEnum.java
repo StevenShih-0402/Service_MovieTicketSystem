@@ -1,7 +1,5 @@
 package com.ctbcbank.navi.mid.campaign.management.enums;
 
-import java.util.Optional;
-
 public enum RuleNameEnum {
     TIMES_COUNT_RULE("TIMES_COUNT_RULE"),
     VALUE_COUNT_RULE("VALUE_COUNT_RULE"),
@@ -13,14 +11,5 @@ public enum RuleNameEnum {
     IS_TRUE("IS_TRUE");
 
     RuleNameEnum(String ruleName) {
-    }
-
-    public static Optional<RuleNameEnum> fromCode(String code) {
-        for (RuleNameEnum ruleName : RuleNameEnum.values()) {
-            if (ruleName.name().equals(code)) {
-                return Optional.of(ruleName);
-            }
-        }
-        return Optional.empty();
     }
 }

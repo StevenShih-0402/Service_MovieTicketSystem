@@ -2,6 +2,7 @@ package com.ctbcbank.navi.mid.campaign.management.dao;
 
 import com.ctbcbank.navi.mid.campaign.management.dto.CampaignDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.CampaignRuleGroupDto;
+import com.ctbcbank.navi.mid.campaign.management.dto.CampaignRuleSettingDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.entity.CampaignEntity;
 import com.ctbcbank.navi.mid.campaign.management.entity.CampaignRuleGroupCouponEntity;
@@ -20,13 +21,18 @@ import com.ibm.cbmp.fabric.foundation.utils.BeanUtils;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
 import com.ibm.cbmp.fabric.foundation.utils.ObjectUtils;
 import com.ibm.cbmp.fabric.foundation.utils.StringUtils;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Query;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.ListUtils;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -40,6 +46,7 @@ public class CampaignDao {
     private final CampaignRuleSettingRepository campaignRuleSettingRepository;
     private final CampaignRuleGroupRepository campaignRuleGroupRepository;
     private final CampaignRuleGroupCouponRepository campaignRuleGroupCouponRepository;
+    private final EntityManagerFactory entityManagerFactory;
 
     @Transactional(readOnly = true)
     public List<CampaignDto> queryCampaign(QueryCampaignConditionDto queryCampaignConditionDto) {
@@ -54,8 +61,16 @@ public class CampaignDao {
                 predicates.add(builder.equal(root.get("id"), queryCampaignConditionDto.getId()));
             }
 
+            if (!CollectionUtils.isEmpty(queryCampaignConditionDto.getIdList())) {
+                predicates.add(builder.in(root.get("id")).value(queryCampaignConditionDto.getIdList()));
+            }
+
             if (StringUtils.isNotBlank(queryCampaignConditionDto.getCampaignNo())) {
                 predicates.add(builder.equal(root.get("campaignNo"), queryCampaignConditionDto.getCampaignNo()));
+            }
+
+            if (StringUtils.isNotBlank(queryCampaignConditionDto.getCampaignNameLike())) {
+                predicates.add(builder.like(root.get("name"), queryCampaignConditionDto.getCampaignNameLike()));
             }
 
             if (ObjectUtils.isNotEmpty(queryCampaignConditionDto.getCampaignDateTime())) {
@@ -123,11 +138,11 @@ public class CampaignDao {
                 LinkedList<RuleNode> ruleNodeList = new LinkedList<>();
                 ruleSettingEntityList.forEach(campaignRuleSettingEntity -> {
                     //each ruleNode
-                    Optional<RuleNameEnum> ruleNameEnumOptional = RuleNameEnum.fromCode(campaignRuleSettingEntity.getRuleName());
+                    RuleNameEnum ruleNameEnum = RuleNameEnum.valueOf(campaignRuleSettingEntity.getRuleName());
                     boolean isSync = campaignEntity.getIsImmediate();
                     RuleNode ruleNode = new RuleNode(
-                            campaignRuleSettingEntity.getId(), campaignRuleSettingEntity.getFieldName(), isSync, ruleNameEnumOptional.get(), null,
-                            RuleTypeEnum.fromCode(campaignRuleSettingEntity.getRuleType()),
+                            campaignRuleSettingEntity.getId(), campaignRuleSettingEntity.getFieldName(), isSync, ruleNameEnum, null,
+                            RuleTypeEnum.valueOf(campaignRuleSettingEntity.getRuleType()),
                             campaignRuleSettingEntity.getRuleValue()
                     );
                     ruleNodeList.addLast(ruleNode);
@@ -195,6 +210,126 @@ public class CampaignDao {
         campaignRuleGroupRepository.save(campaignRuleGroupEntity);
         BeanUtils.copyProperties(campaignRuleGroupEntity, reCampaignRuleGroupDto);
         return reCampaignRuleGroupDto;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BigInteger> queryCampaignByRule(List<BigInteger> campaignIdList, List<CampaignRuleSettingDto> campaignRuleSettingDtoList, int page, int size) {
+        Map<String, Object> sqlParams = new HashMap<>();
+        StringBuilder dataSql = new StringBuilder("""
+                SELECT DISTINCT(CAMPAIGN_ID) FROM 
+                (
+                """);
+        // 查TB_CAMPAIGN_RULE_SETTING 加上條件
+        StringBuilder ruleSettingSql = new StringBuilder("""
+                SELECT CAMPAIGN_ID
+                 FROM TB_CAMPAIGN_RULE_SETTING
+                 WHERE 1 = 1 
+                """);
+        StringBuilder ruleSettingConditionSql = generateRuleSettingConditionSql("ruleSetting", campaignRuleSettingDtoList, sqlParams);
+        if (!ruleSettingConditionSql.isEmpty()) {
+            ruleSettingSql.append(" " + ruleSettingConditionSql);
+        }
+
+        dataSql.append(ruleSettingSql);
+        // UNION 會自動去除重複值
+        // UNION ALL 不會自動去除重複值
+        dataSql.append("""
+                \n
+                 UNION
+                """);
+
+        // 查TB_CAMPAIGN_RULE_SETTING_EXTRA 加上條件
+        StringBuilder ruleSettingExtraSql = new StringBuilder("""
+                 \n
+                 SELECT CAMPAIGN_ID
+                 FROM TB_CAMPAIGN_RULE_SETTING_EXTRA
+                 WHERE 1 = 1
+                """);
+        StringBuilder ruleSettingExtraConditionSql = generateRuleSettingConditionSql("ruleSettingExtra", campaignRuleSettingDtoList, sqlParams);
+        if (!ruleSettingExtraConditionSql.isEmpty()) {
+            ruleSettingExtraSql.append(" " + ruleSettingExtraConditionSql);
+        }
+        dataSql.append(ruleSettingExtraSql);
+
+        dataSql.append("""
+                \n
+                 ) WHERE 1 = 1
+                """);
+        if (!CollectionUtils.isEmpty(campaignIdList)) {
+            dataSql.append(" AND CAMPAIGN_ID IN :campaignIdList");
+            sqlParams.put("campaignIdList", campaignIdList);
+        }
+        dataSql.append("""
+                 \n
+                 ORDER BY CAMPAIGN_ID DESC
+                """);
+
+        StringBuilder countSql = new StringBuilder("""
+                        SELECT COUNT(*) 
+                        FROM (
+                """);
+        countSql.append(dataSql);
+        countSql.append(" )");
+
+        log.info("[{}][queryCampaignByRule][dataSql: {}]", CLASS_NAME, dataSql);
+        log.info("[{}][queryCampaignByRule][countSql: {}]", CLASS_NAME, countSql);
+        log.info("[{}][queryCampaignByRule][sqlParams: {}]", CLASS_NAME, sqlParams);
+
+        Pageable pageable = PageRequest.of(page, size);
+        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+            Query dataQuery = entityManager.createNativeQuery(dataSql.toString(), BigInteger.class);
+            sqlParams.forEach(dataQuery::setParameter);
+            dataQuery.setFirstResult((int) pageable.getOffset());
+            dataQuery.setMaxResults(pageable.getPageSize());
+            List<BigInteger> campaignIdListResult = dataQuery.getResultList();
+
+            Query countQuery = entityManager.createNativeQuery(countSql.toString(), BigInteger.class);
+            sqlParams.forEach(countQuery::setParameter);
+            Long totalCount = ((Number) countQuery.getSingleResult()).longValue();
+            return new PageImpl<>(campaignIdListResult, pageable, totalCount);
+        }
+    }
+
+    /**
+     * 產出規則設定條件SQL
+     *
+     * @param prefixKey
+     * @param campaignRuleSettingDtoList
+     * @param sqlParams
+     * @return
+     */
+    private StringBuilder generateRuleSettingConditionSql(String prefixKey, List<CampaignRuleSettingDto> campaignRuleSettingDtoList, Map<String, Object> sqlParams) {
+        StringBuilder ruleSettingSql = new StringBuilder();
+        for (int i = 0; i < campaignRuleSettingDtoList.size(); ++i) {
+            CampaignRuleSettingDto campaignRuleSettingDto = campaignRuleSettingDtoList.get(0);
+            StringBuilder sql = new StringBuilder();
+            String ruleSettingTransactionCodeKey = prefixKey + "TransactionCode" + i;
+            sql.append(" TRANSACTION_CODE = :" + ruleSettingTransactionCodeKey);
+            sqlParams.put(ruleSettingTransactionCodeKey, campaignRuleSettingDto.getTransactionCode());
+
+            if (StringUtils.isNotBlank(campaignRuleSettingDto.getRuleName())) {
+                String ruleSettingRuleNameKey = prefixKey + "RuleNameKey" + i;
+                sql.append(" AND RULE_NAME = :" + ruleSettingRuleNameKey);
+                sqlParams.put(ruleSettingRuleNameKey, campaignRuleSettingDto.getRuleName());
+            }
+
+            if (StringUtils.isNotBlank(campaignRuleSettingDto.getRuleType())) {
+                String ruleSettingRuleTypeKey = prefixKey + "RuleTypeKey" + i;
+                sql.append(" AND RULE_TYPE = :" + ruleSettingRuleTypeKey);
+                sqlParams.put(ruleSettingRuleTypeKey, campaignRuleSettingDto.getRuleType());
+            }
+
+            if (StringUtils.isNotBlank(campaignRuleSettingDto.getRuleValue())) {
+                String ruleSettingRuleValueKey = prefixKey + "RuleValueKey" + i;
+                sql.append(" AND RULE_VALUE = :" + ruleSettingRuleValueKey);
+                sqlParams.put(ruleSettingRuleValueKey, campaignRuleSettingDto.getRuleValue());
+            }
+
+            ruleSettingSql.append(" AND (");
+            ruleSettingSql.append(sql);
+            ruleSettingSql.append(" )");
+        }
+        return ruleSettingSql;
     }
 
 

@@ -3,6 +3,8 @@ package com.ctbcbank.navi.mid.campaign.management.controller.campaign;
 import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.*;
 import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.addparticipantlist.CampaignAddParticipantListRq;
 import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.addparticipantlist.CampaignAddParticipantListRs;
+import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.querybyrule.CampaignQueryByRuleRq;
+import com.ctbcbank.navi.mid.campaign.management.controller.campaign.payload.querybyrule.CampaignQueryByRuleRs;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.*;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipantlist.CampaignAddParticipantListConverter;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.addparticipantlist.CampaignAddParticipantListRqBo;
@@ -23,6 +25,10 @@ import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaig
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignno.CampaignQueryByCampaignNoRqBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignno.CampaignQueryByCampaignNoRsBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybycampaignno.CampaignQueryByCampaignNoService;
+import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybyrule.CampaignQueryByRuleConverter;
+import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybyrule.CampaignQueryByRuleRqBo;
+import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybyrule.CampaignQueryByRuleRsBo;
+import com.ctbcbank.navi.mid.campaign.management.service.campaign.querybyrule.CampaignQueryByRuleService;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycouponrequestform.CampaignQueryCouponRequestFormConverter;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycouponrequestform.CampaignQueryCouponRequestFormRqBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycouponrequestform.CampaignQueryCouponRequestFormRsBo;
@@ -31,25 +37,35 @@ import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycoupontem
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycoupontemplate.CampaignQueryCouponTemplateRqBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycoupontemplate.CampaignQueryCouponTemplateRsBo;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycoupontemplate.CampaignQueryCouponTemplateService;
+import com.ctbcbank.navi.mid.campaign.management.utils.FieldValidatorUtils;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
+import com.ibm.cbmp.fabric.foundation.utils.ObjectUtils;
 import com.ibm.cbmp.fabric.web.api.annotation.GetApiMapping;
 import com.ibm.cbmp.fabric.web.api.annotation.PostApiMapping;
 import com.ibm.cbmp.fabric.web.api.message.ApiResponsePayload;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "v1/campaign/", produces = MediaType.APPLICATION_JSON_VALUE)
+@Log4j2
 public class CampaignController {
 
     private final CampaignService campaignService;
@@ -60,6 +76,8 @@ public class CampaignController {
     private final CampaignCreateCouponRequestFormService campaignCreateCouponRequestFormService;
     private final CampaignQueryCouponRequestFormService campaignQueryCouponRequestFormService;
     private final CampaignAddParticipantListService campaignAddParticipantListService;
+    private final CampaignQueryByRuleService campaignQueryByRuleService;
+    private final String CLASS_NAME = CampaignController.class.getSimpleName();
 
     @Operation(summary = "取得RuleEngine的Tree By 條件(轉帳時間、TransactionCode、IP_NO)", description = "取得RuleEngine的Tree By 條件(轉帳時間、TransactionCode、IP_NO)")
     @PostApiMapping(value = "query-rule-engine-tree/by-condition")
@@ -86,6 +104,20 @@ public class CampaignController {
         CampaignQueryRsBo campaignQueryRsBo = campaignQueryService.query(campaignQueryRqBo);
         CampaignQueryRs campaignQueryRs = CampaignQueryConverter.parseRsBoToRs(campaignQueryRsBo);
         return campaignQueryRs;
+    }
+
+    @Operation(summary = "查詢 行銷活動清單 By 規則條件", description = "查詢 行銷活動清單 By 規則條件")
+    @PostApiMapping(value = "query/by-rule")
+    CampaignQueryByRuleRs queryByRule(@Valid @RequestBody CampaignQueryByRuleRq campaignQueryByRuleRq) {
+        // 檢查活動名稱跟規則清單欄位是否皆為null 或 empty
+        String[] checkFields = {"campaignName", "ruleList"};
+        boolean allFieldsNullOrEmpty = FieldValidatorUtils.areFieldNullOrEmpty(campaignQueryByRuleRq, checkFields);
+        log.info("[{}][queryByRule][allFieldsNullOrEmpty: {}]", CLASS_NAME, allFieldsNullOrEmpty);
+        if (allFieldsNullOrEmpty) throw new NaviException(FabricResponseCode.INVALID_DATA, String.format("Check Fields(%s) AreFieldNullOrEmpty.", Arrays.toString(checkFields)));
+        CampaignQueryByRuleRqBo campaignQueryByRuleRqBo = CampaignQueryByRuleConverter.parseRqToRqBo(campaignQueryByRuleRq);
+        CampaignQueryByRuleRsBo campaignQueryByRuleRsBo = campaignQueryByRuleService.queryByRule(campaignQueryByRuleRqBo);
+        CampaignQueryByRuleRs campaignQueryByRuleRs = CampaignQueryByRuleConverter.parseRsBoToRs(campaignQueryByRuleRsBo);
+        return campaignQueryByRuleRs;
     }
 
     @Operation(summary = "新增 活動-優惠券樣板", description = "新增 活動-優惠券樣板")
