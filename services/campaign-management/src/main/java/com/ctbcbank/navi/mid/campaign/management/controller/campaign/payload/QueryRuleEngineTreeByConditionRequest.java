@@ -93,7 +93,7 @@ public class QueryRuleEngineTreeByConditionRequest extends ApiRequestPayload imp
         queryRuleEngineTreeByConditionRequestBo.setSynchronous(queryRuleEngineTreeByConditionRequest.isSynchronous());
 
 
-        Optional<TransactionCodeEnum> transactionCodeEnumOptional = TransactionCodeEnum.fromCode(queryRuleEngineTreeByConditionRequest.getTransactionCode());
+        Optional<TransactionCodeEnum> transactionCodeEnumOptional = Optional.of(TransactionCodeEnum.fromCode(queryRuleEngineTreeByConditionRequest.getTransactionCode()));
         if (transactionCodeEnumOptional.isPresent()) {
             TransactionCodeEnum transactionCodeEnum = transactionCodeEnumOptional.get();
             switch (transactionCodeEnum) {

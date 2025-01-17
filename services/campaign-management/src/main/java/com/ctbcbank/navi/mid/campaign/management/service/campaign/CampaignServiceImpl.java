@@ -179,7 +179,7 @@ public class CampaignServiceImpl implements CampaignService {
         }
         List<BigInteger> reCampaignIdList = new ArrayList<>();
         String transactionCode = queryRuleEngineTreeByConditionRequestBo.getTransactionCode();
-        Optional<TransactionCodeEnum> transactionCodeEnumOptional = TransactionCodeEnum.fromCode(transactionCode);
+        Optional<TransactionCodeEnum> transactionCodeEnumOptional = Optional.of(TransactionCodeEnum.fromCode(transactionCode));
         if (transactionCodeEnumOptional.isPresent()) {
             QueryCampaignRuleSettingExtraConditionDto queryCampaignRuleSettingExtraConditionDto = new QueryCampaignRuleSettingExtraConditionDto();
             queryCampaignRuleSettingExtraConditionDto.setTransactionCode(transactionCode);
