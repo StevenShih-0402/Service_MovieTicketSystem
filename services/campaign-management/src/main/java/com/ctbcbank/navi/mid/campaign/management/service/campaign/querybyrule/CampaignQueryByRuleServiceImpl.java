@@ -26,6 +26,7 @@ public class CampaignQueryByRuleServiceImpl implements CampaignQueryByRuleServic
     @Override
     public CampaignQueryByRuleRsBo queryByRule(CampaignQueryByRuleRqBo campaignQueryByRuleRqBo) {
         List<BigInteger> campaignIdList = new ArrayList<>();
+        // 查活動清單 By 活動名稱模糊查詢
         if (StringUtils.isNotBlank(campaignQueryByRuleRqBo.getCampaignName())) {
             QueryCampaignConditionDto queryCampaignConditionDto = new QueryCampaignConditionDto();
             queryCampaignConditionDto.setCampaignNameLike(campaignQueryByRuleRqBo.getCampaignName());
@@ -33,8 +34,13 @@ public class CampaignQueryByRuleServiceImpl implements CampaignQueryByRuleServic
             campaignIdList = campaignDtoList.stream().map(CampaignDto::getId).toList();
             log.info("[{}][queryByRule][campaignIdList : {}]", CLASS_NAME, campaignIdList);
         }
+
+        // 頁數
         Integer number = campaignQueryByRuleRqBo.getNumber();
+
+        // 每頁筆數
         Integer size = campaignQueryByRuleRqBo.getSize();
+
         List<CampaignRuleSettingDto> campaignRuleSettingDtoList = campaignQueryByRuleRqBo.getRuleList().stream().map(x -> {
             CampaignRuleSettingDto campaignRuleSettingDto = new CampaignRuleSettingDto();
             campaignRuleSettingDto.setTransactionCode(x.getTransactionCode().name());

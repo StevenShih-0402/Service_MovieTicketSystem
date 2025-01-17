@@ -218,9 +218,8 @@ public class CampaignDao {
         StringBuilder dataSql = new StringBuilder("""
                 SELECT DISTINCT(CAMPAIGN_ID) FROM 
                 (
-                                
                 """);
-        // TB_CAMPAIGN_RULE_SETTING
+        // 查TB_CAMPAIGN_RULE_SETTING 加上條件
         StringBuilder ruleSettingSql = new StringBuilder("""
                 SELECT CAMPAIGN_ID
                  FROM TB_CAMPAIGN_RULE_SETTING
@@ -232,12 +231,14 @@ public class CampaignDao {
         }
 
         dataSql.append(ruleSettingSql);
+        // UNION 會自動去除重複值
+        // UNION ALL 不會自動去除重複值
         dataSql.append("""
                 \n
                  UNION
                 """);
 
-        // TB_CAMPAIGN_RULE_SETTING_EXTRA
+        // 查TB_CAMPAIGN_RULE_SETTING_EXTRA 加上條件
         StringBuilder ruleSettingExtraSql = new StringBuilder("""
                  \n
                  SELECT CAMPAIGN_ID
@@ -289,6 +290,14 @@ public class CampaignDao {
         }
     }
 
+    /**
+     * 產出規則設定條件SQL
+     *
+     * @param prefixKey
+     * @param campaignRuleSettingDtoList
+     * @param sqlParams
+     * @return
+     */
     private StringBuilder generateRuleSettingConditionSql(String prefixKey, List<CampaignRuleSettingDto> campaignRuleSettingDtoList, Map<String, Object> sqlParams) {
         StringBuilder ruleSettingSql = new StringBuilder();
         for (int i = 0; i < campaignRuleSettingDtoList.size(); ++i) {
@@ -304,10 +313,7 @@ public class CampaignDao {
                 sqlParams.put(ruleSettingRuleNameKey, campaignRuleSettingDto.getRuleName());
             }
 
-            // 預設為EQUAL
-            RuleTypeEnum ruleType = RuleTypeEnum.EQUAL;
             if (StringUtils.isNotBlank(campaignRuleSettingDto.getRuleType())) {
-                ruleType = RuleTypeEnum.valueOf(campaignRuleSettingDto.getRuleType());
                 String ruleSettingRuleTypeKey = prefixKey + "RuleTypeKey" + i;
                 sql.append(" AND RULE_TYPE = :" + ruleSettingRuleTypeKey);
                 sqlParams.put(ruleSettingRuleTypeKey, campaignRuleSettingDto.getRuleType());
@@ -315,33 +321,8 @@ public class CampaignDao {
 
             if (StringUtils.isNotBlank(campaignRuleSettingDto.getRuleValue())) {
                 String ruleSettingRuleValueKey = prefixKey + "RuleValueKey" + i;
-                sql.append(" AND RULE_VALUE");
-                switch (ruleType) {
-                    case NOT_EQUAL -> {
-                        sql.append(" != :" + ruleSettingRuleValueKey);
-                        sqlParams.put(ruleSettingRuleValueKey, campaignRuleSettingDto.getRuleValue());
-                    }
-                    case GREATER_THAN -> {
-                        sql.append(" > :" + ruleSettingRuleValueKey);
-                        BigDecimal value = new BigDecimal(campaignRuleSettingDto.getRuleValue());
-                        sqlParams.put(ruleSettingRuleValueKey, value);
-                    }
-                    case LESS_THAN -> {
-                        sql.append(" < :" + ruleSettingRuleValueKey);
-                        BigDecimal value = new BigDecimal(campaignRuleSettingDto.getRuleValue());
-                        sqlParams.put(ruleSettingRuleValueKey, value);
-                    }
-                    case GREATER_THAN_OR_EQUAL -> {
-                        sql.append(" >= :" + ruleSettingRuleValueKey);
-                        BigDecimal value = new BigDecimal(campaignRuleSettingDto.getRuleValue());
-                        sqlParams.put(ruleSettingRuleValueKey, value);
-                    }
-                    default -> {
-                        // EQUAL、LIMIT、IS
-                        sql.append(" = :" + ruleSettingRuleValueKey);
-                        sqlParams.put(ruleSettingRuleValueKey, campaignRuleSettingDto.getRuleValue());
-                    }
-                }
+                sql.append(" AND RULE_VALUE = :" + ruleSettingRuleValueKey);
+                sqlParams.put(ruleSettingRuleValueKey, campaignRuleSettingDto.getRuleValue());
             }
 
             ruleSettingSql.append(" AND (");

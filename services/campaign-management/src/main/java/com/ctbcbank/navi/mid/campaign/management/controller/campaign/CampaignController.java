@@ -109,7 +109,7 @@ public class CampaignController {
     @Operation(summary = "查詢 行銷活動清單 By 規則條件", description = "查詢 行銷活動清單 By 規則條件")
     @PostApiMapping(value = "query/by-rule")
     CampaignQueryByRuleRs queryByRule(@Valid @RequestBody CampaignQueryByRuleRq campaignQueryByRuleRq) {
-        // 檢查欄位是否皆為null 或 empty
+        // 檢查活動名稱跟規則清單欄位是否皆為null 或 empty
         String[] checkFields = {"campaignName", "ruleList"};
         boolean allFieldsNullOrEmpty = FieldValidatorUtils.areFieldNullOrEmpty(campaignQueryByRuleRq, checkFields);
         log.info("[{}][queryByRule][allFieldsNullOrEmpty: {}]", CLASS_NAME, allFieldsNullOrEmpty);
