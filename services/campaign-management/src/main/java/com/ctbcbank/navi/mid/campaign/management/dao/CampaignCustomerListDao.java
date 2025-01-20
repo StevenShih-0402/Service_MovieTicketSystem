@@ -50,4 +50,13 @@ public class CampaignCustomerListDao {
         return reDataList;
     }
 
+    public CampaignCustomerListDto saveCampaignCustomerList(CampaignCustomerListDto campaignCustomerListDto) {
+        CampaignCustomerListDto reCampaignCustomerListDto = new CampaignCustomerListDto();
+        CampaignCustomerListEntity campaignCustomerListEntity = new CampaignCustomerListEntity();
+        BeanUtils.copyProperties(campaignCustomerListDto, campaignCustomerListEntity);
+        campaignCustomerListRepository.save(campaignCustomerListEntity);
+        BeanUtils.copyProperties(campaignCustomerListEntity, reCampaignCustomerListDto);
+        return reCampaignCustomerListDto;
+    }
+
 }
