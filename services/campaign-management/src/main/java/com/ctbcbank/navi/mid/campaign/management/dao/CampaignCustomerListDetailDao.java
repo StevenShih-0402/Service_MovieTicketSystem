@@ -7,6 +7,7 @@ import com.ctbcbank.navi.mid.campaign.management.repository.CampaignCustomerList
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
 import com.ibm.cbmp.fabric.foundation.utils.BeanUtils;
+import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
 import com.ibm.cbmp.fabric.foundation.utils.ObjectUtils;
 import com.ibm.cbmp.fabric.foundation.utils.StringUtils;
 import jakarta.persistence.criteria.Predicate;
@@ -18,9 +19,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +33,7 @@ import java.util.List;
 public class CampaignCustomerListDetailDao {
     private final String CLASS_NAME = CampaignCustomerListDetailDao.class.getSimpleName();
     private final CampaignCustomerListDetailRepository campaignCustomerListDetailRepository;
+    private final JdbcTemplate jdbcTemplate;
     private final int QUERY_MAX_SIZE = 1000;
 
 
@@ -101,6 +105,59 @@ public class CampaignCustomerListDetailDao {
         return campaignCustomerListDetailDto;
     }
 
+    public CampaignCustomerListDetailDto saveCampaignCustomerListDetail(CampaignCustomerListDetailDto campaignCustomerListDetailDto) {
+        CampaignCustomerListDetailDto reCampaignCustomerListDetailDto = new CampaignCustomerListDetailDto();
+        CampaignCustomerListDetailEntity campaignCustomerListDetailEntity = new CampaignCustomerListDetailEntity();
+        BeanUtils.copyProperties(campaignCustomerListDetailDto, campaignCustomerListDetailEntity);
+        campaignCustomerListDetailRepository.save(campaignCustomerListDetailEntity);
+        BeanUtils.copyProperties(campaignCustomerListDetailEntity, reCampaignCustomerListDetailDto);
+        return reCampaignCustomerListDetailDto;
+    }
+
+    public void saveCampaignCustomerListDetail(List<CampaignCustomerListDetailDto> campaignCustomerListDetailDtoList, int batchSize) {
+        if (CollectionUtils.isEmpty(campaignCustomerListDetailDtoList)) {
+            return;
+        }
+        String sql = """
+                INSERT INTO TB_CAMPAIGN_CUSTOMER_LIST_DETAIL 
+                ( ID
+                , CREATE_DTTM
+                , UPDATE_DTTM
+                , ID_NO
+                , NAME
+                , IP_NO_LIST
+                , IS_SINGLE_IP_NO
+                , STATUS
+                , MESSAGE
+                , CUSTOMER_LIST_NO
+                , CHOSEN_IP_NO
+                )
+                VALUES
+                ( SEQ_CAMPAIGN_CUSTOMER_LIST_DETAIL.NEXTVAL
+                , SYSTIMESTAMP
+                , SYSTIMESTAMP
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                , ?
+                )
+                """;
+
+        jdbcTemplate.batchUpdate(sql, campaignCustomerListDetailDtoList, batchSize, (ps, argument) -> {
+            ps.setString(1, argument.getIdNo());
+            ps.setString(2, argument.getName());
+            ps.setString(3, argument.getIpNoList().toString());
+            ps.setBoolean(4, argument.getIsSingleIpNo());
+            ps.setString(5, argument.getStatus().toString());
+            ps.setString(6, argument.getMessage());
+            ps.setString(7, argument.getCustomerListNo());
+            ps.setLong(8, argument.getChosenIpNo().longValue());
+        });
+    }
 
 
 }
