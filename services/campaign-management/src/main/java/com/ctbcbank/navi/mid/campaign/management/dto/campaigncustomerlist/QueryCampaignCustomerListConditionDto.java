@@ -13,6 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 public class QueryCampaignCustomerListConditionDto implements Serializable {
     private static final long serialVersionUID = 1L;
-
+    private String customerListNo;
     private List<CampaignCustomerListStatusEnum> statusList;
 }

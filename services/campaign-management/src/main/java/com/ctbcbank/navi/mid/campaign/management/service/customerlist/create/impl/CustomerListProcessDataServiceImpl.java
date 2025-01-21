@@ -4,10 +4,16 @@ import com.ctbcbank.navi.mid.campaign.management.adapter.navi.custinfo.CustomerI
 import com.ctbcbank.navi.mid.campaign.management.adapter.navi.custinfo.payload.QueryInvolvedPartyByConditionV2Rq;
 import com.ctbcbank.navi.mid.campaign.management.adapter.navi.custinfo.payload.QueryInvolvedPartyByConditionV2Rs;
 import com.ctbcbank.navi.mid.campaign.management.adapter.navi.custinfo.payload.common.HtgApiRequestHeaderRq;
+import com.ctbcbank.navi.mid.campaign.management.dao.CampaignCustomerListDao;
 import com.ctbcbank.navi.mid.campaign.management.dao.CampaignCustomerListDetailDao;
+import com.ctbcbank.navi.mid.campaign.management.dto.campaigncustomerlist.CampaignCustomerListDto;
+import com.ctbcbank.navi.mid.campaign.management.dto.campaigncustomerlist.QueryCampaignCustomerListConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaigncustomerlistdetail.CampaignCustomerListDetailDto;
+import com.ctbcbank.navi.mid.campaign.management.dto.campaigncustomerlistdetail.QueryCampaignCustomerListDetailConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignCustomerListStatusEnum;
 import com.ctbcbank.navi.mid.campaign.management.service.customerlist.create.CustomerListProcessDataService;
+import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
+import com.ibm.cbmp.fabric.foundation.exception.NaviException;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
 import com.ibm.cbmp.fabric.foundation.utils.StringUtils;
 import com.ibm.cbmp.fabric.web.utils.ApiExceptionUtils;
@@ -16,10 +22,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Log4j2
@@ -27,29 +34,48 @@ import java.util.List;
 public class CustomerListProcessDataServiceImpl implements CustomerListProcessDataService {
     private final String CLASS_NAME = CustomerListProcessDataServiceImpl.class.getSimpleName();
     private final CampaignCustomerListDetailDao campaignCustomerListDetailDao;
+    private final CampaignCustomerListDao campaignCustomerListDao;
     private final CustomerInfoManagementAdapter customerInfoManagementAdapter;
 
     @Override
     @Async
-    @Transactional
     public void processData(String customerListNo) {
+        QueryCampaignCustomerListConditionDto queryCampaignCustomerListConditionDto = new QueryCampaignCustomerListConditionDto();
+        queryCampaignCustomerListConditionDto.setCustomerListNo(customerListNo);
+        List<CampaignCustomerListDto> campaignCustomerListDtoList = campaignCustomerListDao.queryCampaignCustomerList(queryCampaignCustomerListConditionDto);
+        if (CollectionUtils.isEmpty(campaignCustomerListDtoList) || campaignCustomerListDtoList.size() > 1) {
+            throw new NaviException(FabricResponseCode.INVALID_DATA, "CustomerListNo: " + customerListNo + ", Data Not Found || size > 1");
+        }
+        CampaignCustomerListDto campaignCustomerListDto = campaignCustomerListDtoList.get(0);
+        // 更新為查詢中
+        campaignCustomerListDto.setStatus(CampaignCustomerListStatusEnum.IN_PROGRESS);
+        campaignCustomerListDao.saveCampaignCustomerList(campaignCustomerListDto);
+
         // 分頁查詢
         // 當前頁數
         int number = 0;
-        // 總頁數，預設為最大
-        int totalPages = Integer.MAX_VALUE;
         // 每頁大小
-        int size = 1000;
+        int size = 100;
         String sortDirection = "asc";
-        Page<CampaignCustomerListDetailDto> firstQueryResult = campaignCustomerListDetailDao.queryCampaignCustomerListDetailByCustomerListNo(customerListNo, number, size, sortDirection);
-        totalPages = firstQueryResult.getTotalPages();
-        log.info("[{}][processData][totalPages: {}]", CLASS_NAME, totalPages);
-        for (; number < totalPages; number++) {
-            log.info("[{}][processData][page: {}/{}]", CLASS_NAME, number, totalPages);
-            Page<CampaignCustomerListDetailDto> queryResult = campaignCustomerListDetailDao.queryCampaignCustomerListDetailByCustomerListNo(customerListNo, number, size, sortDirection);
+        QueryCampaignCustomerListDetailConditionDto queryCampaignCustomerListDetailConditionDto = new QueryCampaignCustomerListDetailConditionDto();
+        queryCampaignCustomerListDetailConditionDto.setCustomerListNo(customerListNo);
+        // 狀態為未查詢或查詢中
+        List<CampaignCustomerListStatusEnum> statusList = Stream.of(CampaignCustomerListStatusEnum.NOT_QUERIED, CampaignCustomerListStatusEnum.IN_PROGRESS).collect(Collectors.toList());
+        queryCampaignCustomerListDetailConditionDto.setStatusList(statusList);
+        while (true) {
+            Page<CampaignCustomerListDetailDto> queryResult = campaignCustomerListDetailDao.queryCampaignCustomerListDetail(queryCampaignCustomerListDetailConditionDto, number, size, sortDirection);
+            log.info("[{}][processData][TotalElements: {}]", CLASS_NAME, queryResult.getTotalElements());
             List<CampaignCustomerListDetailDto> campaignCustomerListDetailDtoList = queryResult.getContent();
+            if (CollectionUtils.isEmpty(campaignCustomerListDetailDtoList)) {
+                log.info("[{}][processData][campaignCustomerListDetailDtoList is empty(break).]", CLASS_NAME);
+                break;
+            }
             getIpNo(campaignCustomerListDetailDtoList);
         }
+
+        // 更新為已查詢
+        campaignCustomerListDto.setStatus(CampaignCustomerListStatusEnum.COMPLETED);
+        campaignCustomerListDao.saveCampaignCustomerList(campaignCustomerListDto);
         log.info("[{}][processData][processData Data end.]", CLASS_NAME);
 
     }
@@ -86,6 +112,7 @@ public class CustomerListProcessDataServiceImpl implements CustomerListProcessDa
                         .toList();
                 // 更新IP NO清單
                 campaignCustomerListDetailDto.setIpNoList(ipNoList);
+                campaignCustomerListDetailDto.setMessage(null);
                 if (!CollectionUtils.isEmpty(ipNoList)) {
                     if (ipNoList.size() == 1) {
                         // 更新為單一IP NO

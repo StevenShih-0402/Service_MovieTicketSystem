@@ -7,6 +7,7 @@ import com.ctbcbank.navi.mid.campaign.management.dto.campaigncustomerlistdetail.
 import com.ctbcbank.navi.mid.campaign.management.enums.CampaignCustomerListStatusEnum;
 import com.ctbcbank.navi.mid.campaign.management.enums.csvHeader.CustomerListDetailCsvHeader;
 import com.ctbcbank.navi.mid.campaign.management.utils.CsvUtils;
+import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
 import com.ibm.cbmp.fabric.foundation.utils.UUIDUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -32,7 +33,6 @@ public class CustomerListCreateServiceImpl implements CustomerListCreateService 
     private final CustomerListProcessDataService customerListProcessDataService;
 
     @Override
-    @Transactional
     public CustomerListCreateRsBo create(CustomerListCreateRqBo customerListCreateRqBo) {
         CampaignCustomerListDto campaignCustomerListDto = new CampaignCustomerListDto();
         campaignCustomerListDto.setCustomerListNo(UUIDUtils.getUUID());
@@ -67,17 +67,30 @@ public class CustomerListCreateServiceImpl implements CustomerListCreateService 
         List<CampaignCustomerListDetailDto> campaignCustomerListDetailDtoList = new ArrayList<>();
         for (MultipartFile file : fileList) {
             try {
+
                 Iterable<CSVRecord> csvRecords = csvFormat.parse(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
                 for (CSVRecord csvRecord : csvRecords) {
                     campaignCustomerListDetailDtoList.add(covertToDto(csvRecord, customerListNo));
+                }
+                // 每100筆存一次
+                if (campaignCustomerListDetailDtoList.size() % 100 == 0) {
+                    // 新增資料至資料庫
+                    log.info("[{}][processFile][insert campaignCustomerListDetailDtoList: {}]", CLASS_NAME, campaignCustomerListDetailDtoList);
+                    campaignCustomerListDetailDao.saveCampaignCustomerListDetail(campaignCustomerListDetailDtoList, 100);
+                    campaignCustomerListDetailDtoList.clear();
                 }
             } catch (Exception ex) {
                 log.error("[{}][processFile][parsing fail...{}]", CLASS_NAME, ex);
             }
         }
-        log.info("[{}][processFile][campaignCustomerListDetailDtoList: {}]", CLASS_NAME, campaignCustomerListDetailDtoList);
-        // 新增資料至資料庫
-        campaignCustomerListDetailDao.saveCampaignCustomerListDetail(campaignCustomerListDetailDtoList, 100);
+        // 最後未滿100筆也需要存到資料庫
+        if (!CollectionUtils.isEmpty(campaignCustomerListDetailDtoList)) {
+            // 新增資料至資料庫
+            log.info("[{}][processFile][insert campaignCustomerListDetailDtoList: {}]", CLASS_NAME, campaignCustomerListDetailDtoList);
+            campaignCustomerListDetailDao.saveCampaignCustomerListDetail(campaignCustomerListDetailDtoList, 100);
+        }
+
+
     }
 
     private CampaignCustomerListDetailDto covertToDto(CSVRecord csvRecord, String customerListNo) {

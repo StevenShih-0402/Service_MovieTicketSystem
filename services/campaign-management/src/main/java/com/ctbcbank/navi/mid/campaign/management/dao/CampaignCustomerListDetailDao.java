@@ -23,7 +23,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,9 +61,10 @@ public class CampaignCustomerListDetailDao {
         return reDataList;
     }
 
-    public Page<CampaignCustomerListDetailDto> queryCampaignCustomerListDetailByCustomerListNo(String customerListNo, int page, int size, String sortDirection) {
+    @Transactional(readOnly = true)
+    public Page<CampaignCustomerListDetailDto> queryCampaignCustomerListDetail(QueryCampaignCustomerListDetailConditionDto queryCampaignCustomerListDetailConditionDto, int page, int size, String sortDirection) {
         // 檢查是否有客戶名單編號、當前頁數、每頁幾筆
-        if (StringUtils.isBlank(customerListNo) || ObjectUtils.isEmpty(page) || ObjectUtils.isEmpty(size)) {
+        if (StringUtils.isBlank(queryCampaignCustomerListDetailConditionDto.getCustomerListNo()) || ObjectUtils.isEmpty(page) || ObjectUtils.isEmpty(size)) {
             throw new NaviException(FabricResponseCode.INVALID_DATA, "customerListNo && page && size should not be null.");
         }
 
@@ -74,10 +74,17 @@ public class CampaignCustomerListDetailDao {
         }
 
         Specification<CampaignCustomerListDetailEntity> specification = (root, query, criteriaBuilder) -> {
-            if (customerListNo != null) {
-                return criteriaBuilder.equal(root.get("customerListNo"), customerListNo);
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (StringUtils.isNotBlank(queryCampaignCustomerListDetailConditionDto.getCustomerListNo())) {
+                predicates.add(criteriaBuilder.equal(root.get("customerListNo"), queryCampaignCustomerListDetailConditionDto.getCustomerListNo()));
             }
-            return null;
+
+            if (!CollectionUtils.isEmpty(queryCampaignCustomerListDetailConditionDto.getStatusList())) {
+                predicates.add(criteriaBuilder.in(root.get("status")).value(queryCampaignCustomerListDetailConditionDto.getStatusList()));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
         Sort sort = Sort.by("id");
@@ -105,6 +112,7 @@ public class CampaignCustomerListDetailDao {
         return campaignCustomerListDetailDto;
     }
 
+    @Transactional
     public CampaignCustomerListDetailDto saveCampaignCustomerListDetail(CampaignCustomerListDetailDto campaignCustomerListDetailDto) {
         CampaignCustomerListDetailDto reCampaignCustomerListDetailDto = new CampaignCustomerListDetailDto();
         CampaignCustomerListDetailEntity campaignCustomerListDetailEntity = new CampaignCustomerListDetailEntity();
@@ -114,6 +122,7 @@ public class CampaignCustomerListDetailDao {
         return reCampaignCustomerListDetailDto;
     }
 
+    @Transactional
     public void saveCampaignCustomerListDetail(List<CampaignCustomerListDetailDto> campaignCustomerListDetailDtoList, int batchSize) {
         if (CollectionUtils.isEmpty(campaignCustomerListDetailDtoList)) {
             return;
