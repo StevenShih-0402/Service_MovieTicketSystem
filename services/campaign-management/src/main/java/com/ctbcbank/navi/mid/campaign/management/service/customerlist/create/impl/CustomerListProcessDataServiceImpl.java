@@ -15,6 +15,7 @@ import com.ctbcbank.navi.mid.campaign.management.service.customerlist.create.Cus
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
+import com.ibm.cbmp.fabric.foundation.utils.ObjectUtils;
 import com.ibm.cbmp.fabric.foundation.utils.StringUtils;
 import com.ibm.cbmp.fabric.web.utils.ApiExceptionUtils;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,8 @@ public class CustomerListProcessDataServiceImpl implements CustomerListProcessDa
     private final CampaignCustomerListDetailDao campaignCustomerListDetailDao;
     private final CampaignCustomerListDao campaignCustomerListDao;
     private final CustomerInfoManagementAdapter customerInfoManagementAdapter;
+    // 重試次數
+    private static final int RETRY_ATTEMPTS = 3;
 
     @Override
     @Async
@@ -63,7 +66,8 @@ public class CustomerListProcessDataServiceImpl implements CustomerListProcessDa
         List<CampaignCustomerListStatusEnum> statusList = Stream.of(CampaignCustomerListStatusEnum.NOT_QUERIED, CampaignCustomerListStatusEnum.IN_PROGRESS).collect(Collectors.toList());
         queryCampaignCustomerListDetailConditionDto.setStatusList(statusList);
         while (true) {
-            Page<CampaignCustomerListDetailDto> queryResult = campaignCustomerListDetailDao.queryCampaignCustomerListDetail(queryCampaignCustomerListDetailConditionDto, number, size, sortDirection);
+            Page<CampaignCustomerListDetailDto> queryResult = campaignCustomerListDetailDao.queryCampaignCustomerListDetail(
+                    queryCampaignCustomerListDetailConditionDto, number, size, sortDirection);
             log.info("[{}][processData][TotalElements: {}]", CLASS_NAME, queryResult.getTotalElements());
             List<CampaignCustomerListDetailDto> campaignCustomerListDetailDtoList = queryResult.getContent();
             if (CollectionUtils.isEmpty(campaignCustomerListDetailDtoList)) {
@@ -73,8 +77,18 @@ public class CustomerListProcessDataServiceImpl implements CustomerListProcessDa
             getIpNo(campaignCustomerListDetailDtoList);
         }
 
-        // 更新為已查詢
+        // 搜尋 By 客戶名單編號、已查詢且重試3次失敗
+        queryCampaignCustomerListDetailConditionDto = new QueryCampaignCustomerListDetailConditionDto();
+        queryCampaignCustomerListDetailConditionDto.setCustomerListNo(customerListNo);
+        statusList = Stream.of(CampaignCustomerListStatusEnum.COMPLETED_RETRY_FAILED).collect(Collectors.toList());
+        queryCampaignCustomerListDetailConditionDto.setStatusList(statusList);
+        Page<CampaignCustomerListDetailDto> queryResult = campaignCustomerListDetailDao.queryCampaignCustomerListDetail(queryCampaignCustomerListDetailConditionDto, number, size, sortDirection);
+        // 更新狀態為已查詢
         campaignCustomerListDto.setStatus(CampaignCustomerListStatusEnum.COMPLETED);
+        if (queryResult.getTotalElements() > 0) {
+            // 更新狀態為已查詢且重試3次失敗
+            campaignCustomerListDto.setStatus(CampaignCustomerListStatusEnum.COMPLETED_RETRY_FAILED);
+        }
         campaignCustomerListDao.saveCampaignCustomerList(campaignCustomerListDto);
         log.info("[{}][processData][processData Data end.]", CLASS_NAME);
 
@@ -90,23 +104,24 @@ public class CustomerListProcessDataServiceImpl implements CustomerListProcessDa
         log.info("[{}][getIpNo][totalCount: {}]", CLASS_NAME, totalCount);
         int count = 1;
         for (CampaignCustomerListDetailDto campaignCustomerListDetailDto : campaignCustomerListDetailDtoList) {
-            log.info("[{}][getIpNo][process {}/{} start...]", CLASS_NAME, count, totalCount);
-            // 更新狀態為查詢中
-            campaignCustomerListDetailDto.setStatus(CampaignCustomerListStatusEnum.IN_PROGRESS);
-            campaignCustomerListDetailDto = campaignCustomerListDetailDao.saveCampaignCustomerListDetail(campaignCustomerListDetailDto);
-
-            // Call CIM取的IP NO
-            QueryInvolvedPartyByConditionV2Rq queryInvolvedPartyByConditionV2Rq = new QueryInvolvedPartyByConditionV2Rq();
-
-            queryInvolvedPartyByConditionV2Rq.setIdentificationNo(campaignCustomerListDetailDto.getIdNo());
-            queryInvolvedPartyByConditionV2Rq.setName(campaignCustomerListDetailDto.getName());
-            HtgApiRequestHeaderRq htgApiRequestHeaderRq = new HtgApiRequestHeaderRq();
-            htgApiRequestHeaderRq.setCookieId(StringUtils.HYPHEN);
-            htgApiRequestHeaderRq.setSessionId(StringUtils.HYPHEN);
-            htgApiRequestHeaderRq.setSourceSystem(StringUtils.HYPHEN);
+            log.info("[{}][getIpNo][process id: {}({}/{}) start...]", CLASS_NAME, campaignCustomerListDetailDto.getId(), count, totalCount);
             try {
+                // 更新狀態為查詢中
+                campaignCustomerListDetailDto.setStatus(CampaignCustomerListStatusEnum.IN_PROGRESS);
+                campaignCustomerListDetailDto = campaignCustomerListDetailDao.saveCampaignCustomerListDetail(campaignCustomerListDetailDto);
+
+                // Call CIM取的IP NO
+                QueryInvolvedPartyByConditionV2Rq queryInvolvedPartyByConditionV2Rq = new QueryInvolvedPartyByConditionV2Rq();
+
+                queryInvolvedPartyByConditionV2Rq.setIdentificationNo(campaignCustomerListDetailDto.getIdNo());
+                queryInvolvedPartyByConditionV2Rq.setName(campaignCustomerListDetailDto.getName());
+                HtgApiRequestHeaderRq htgApiRequestHeaderRq = new HtgApiRequestHeaderRq();
+                htgApiRequestHeaderRq.setCookieId(StringUtils.HYPHEN);
+                htgApiRequestHeaderRq.setSessionId(StringUtils.HYPHEN);
+                htgApiRequestHeaderRq.setSourceSystem(StringUtils.HYPHEN);
+
                 QueryInvolvedPartyByConditionV2Rs queryInvolvedPartyByConditionV2Rs = customerInfoManagementAdapter.queryInvolvedPartyByCondition(
-                        queryInvolvedPartyByConditionV2Rq, htgApiRequestHeaderRq);
+                        queryInvolvedPartyByConditionV2Rq, htgApiRequestHeaderRq, RETRY_ATTEMPTS);
                 ApiExceptionUtils.validAndThrowNaviErrorException(queryInvolvedPartyByConditionV2Rs);
                 List<BigInteger> ipNoList = queryInvolvedPartyByConditionV2Rs.getInvolvedParties().stream().map(QueryInvolvedPartyByConditionV2Rs.QueryInvolvedPartyItemV2Rs::getInvolvedPartyNo)
                         .toList();
@@ -124,15 +139,21 @@ public class CustomerListProcessDataServiceImpl implements CustomerListProcessDa
                         campaignCustomerListDetailDto.setIsSingleIpNo(false);
                     }
                 }
-            } catch (Exception ex) {
-                log.error("[{}][getIpNo][Exception: {}]", CLASS_NAME, ex);
-                campaignCustomerListDetailDto.setMessage(ex.getMessage());
-            } finally {
                 // 更新狀態為已查詢
                 campaignCustomerListDetailDto.setStatus(CampaignCustomerListStatusEnum.COMPLETED);
-                campaignCustomerListDetailDao.saveCampaignCustomerListDetail(campaignCustomerListDetailDto);
+                // 清空錯誤訊息
+                campaignCustomerListDetailDto.setMessage(null);
+            } catch (Exception ex) {
+                log.error("[{}][getIpNo][process id: {}({}/{}) error: {}]", CLASS_NAME, campaignCustomerListDetailDto.getId(), count, totalCount, ex.getMessage());
+                // 更新狀態為已查詢且重試3次失敗
+                campaignCustomerListDetailDto.setStatus(CampaignCustomerListStatusEnum.COMPLETED_RETRY_FAILED);
+                // 更新錯誤訊息
+                campaignCustomerListDetailDto.setMessage(ex.getMessage());
             }
-            log.info("[{}][getIpNo][process {}/{} end.]", CLASS_NAME, count, totalCount);
+            campaignCustomerListDetailDao.saveCampaignCustomerListDetail(campaignCustomerListDetailDto);
+
+
+            log.info("[{}][getIpNo][process id: {}({}/{}) end.]", CLASS_NAME, campaignCustomerListDetailDto.getId(), count, totalCount);
             count++;
         }
 

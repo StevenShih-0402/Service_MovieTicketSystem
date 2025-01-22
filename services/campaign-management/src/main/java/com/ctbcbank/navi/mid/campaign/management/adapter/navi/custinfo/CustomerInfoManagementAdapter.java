@@ -26,7 +26,7 @@ public class CustomerInfoManagementAdapter {
     private final String ADAPTER_NAVI_CUSTOMER_INFO_MGMT_DOMAIN = "adapter.navi.customer-info-management.domain";
     private final String CLASS_NAME = CustomerInfoManagementAdapter.class.getSimpleName();
 
-    public QueryInvolvedPartyByConditionV2Rs queryInvolvedPartyByCondition(QueryInvolvedPartyByConditionV2Rq queryInvolvedPartyByConditionV2Rq, HtgApiRequestHeaderRq htgHeader) {
+    public QueryInvolvedPartyByConditionV2Rs queryInvolvedPartyByCondition(QueryInvolvedPartyByConditionV2Rq queryInvolvedPartyByConditionV2Rq, HtgApiRequestHeaderRq htgHeader, Integer maxRetry) {
         HttpHeaders headers = NaviRestAdapter.getHttpHeaders();
         if (ObjectUtils.isNotEmpty(htgHeader)) {
             headers.set(HtgConstant.HTG_SOURCE_SYSTEM, htgHeader.getSourceSystem());
@@ -35,12 +35,15 @@ public class CustomerInfoManagementAdapter {
         }
 
         return NaviRestAdapter.invoke(
-                HttpMethod.POST,
                 URI.create(getDomain().concat("/v2/involved-party/by-condition"))
                 , headers
                 , queryInvolvedPartyByConditionV2Rq
                 , new ParameterizedTypeReference<>() {
                 }
+                , null
+                , null
+                , maxRetry
+                , null
         );
     }
 
