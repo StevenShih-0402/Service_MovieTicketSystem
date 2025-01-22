@@ -120,8 +120,9 @@ public class CustomerListProcessDataServiceImpl implements CustomerListProcessDa
                 htgApiRequestHeaderRq.setSessionId(StringUtils.HYPHEN);
                 htgApiRequestHeaderRq.setSourceSystem(StringUtils.HYPHEN);
 
+                // 不可用多線程呼叫CIM，避免造成死鎖
                 QueryInvolvedPartyByConditionV2Rs queryInvolvedPartyByConditionV2Rs = customerInfoManagementAdapter.queryInvolvedPartyByCondition(
-                        queryInvolvedPartyByConditionV2Rq, htgApiRequestHeaderRq, RETRY_ATTEMPTS);
+                        queryInvolvedPartyByConditionV2Rq, htgApiRequestHeaderRq, RETRY_ATTEMPTS, 500);
                 ApiExceptionUtils.validAndThrowNaviErrorException(queryInvolvedPartyByConditionV2Rs);
                 List<BigInteger> ipNoList = queryInvolvedPartyByConditionV2Rs.getInvolvedParties().stream().map(QueryInvolvedPartyByConditionV2Rs.QueryInvolvedPartyItemV2Rs::getInvolvedPartyNo)
                         .toList();
@@ -151,7 +152,6 @@ public class CustomerListProcessDataServiceImpl implements CustomerListProcessDa
                 campaignCustomerListDetailDto.setMessage(ex.getMessage());
             }
             campaignCustomerListDetailDao.saveCampaignCustomerListDetail(campaignCustomerListDetailDto);
-
 
             log.info("[{}][getIpNo][process id: {}({}/{}) end.]", CLASS_NAME, campaignCustomerListDetailDto.getId(), count, totalCount);
             count++;
