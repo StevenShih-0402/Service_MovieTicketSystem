@@ -26,8 +26,10 @@ public class CampaignQueryByRuleServiceImpl implements CampaignQueryByRuleServic
     @Override
     public CampaignQueryByRuleRsBo queryByRule(CampaignQueryByRuleRqBo campaignQueryByRuleRqBo) {
         List<BigInteger> campaignIdList = new ArrayList<>();
+        boolean isSearchCampaignIdList = false;
         // 查活動清單 By 活動名稱模糊查詢
         if (StringUtils.isNotBlank(campaignQueryByRuleRqBo.getCampaignName())) {
+            isSearchCampaignIdList = true;
             QueryCampaignConditionDto queryCampaignConditionDto = new QueryCampaignConditionDto();
             queryCampaignConditionDto.setCampaignNameLike(campaignQueryByRuleRqBo.getCampaignName());
             List<CampaignDto> campaignDtoList = campaignDao.queryCampaign(queryCampaignConditionDto);
@@ -49,7 +51,7 @@ public class CampaignQueryByRuleServiceImpl implements CampaignQueryByRuleServic
             campaignRuleSettingDto.setRuleType(x.getRuleType().name());
             return campaignRuleSettingDto;
         }).toList();
-        Page<BigInteger> queryResult = campaignDao.queryCampaignByRule(campaignIdList, campaignRuleSettingDtoList, number, size);
+        Page<BigInteger> queryResult = campaignDao.queryCampaignByRules(isSearchCampaignIdList, campaignIdList, campaignRuleSettingDtoList, number, size);
         List<BigInteger> queryCampangiIdList = queryResult.getContent();
         List<CampaignDto> campaignDtoList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(queryCampangiIdList)) {

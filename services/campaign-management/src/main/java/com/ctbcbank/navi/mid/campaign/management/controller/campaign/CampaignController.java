@@ -40,7 +40,6 @@ import com.ctbcbank.navi.mid.campaign.management.service.campaign.querycoupontem
 import com.ctbcbank.navi.mid.campaign.management.utils.FieldValidatorUtils;
 import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
 import com.ibm.cbmp.fabric.foundation.exception.NaviException;
-import com.ibm.cbmp.fabric.foundation.utils.ObjectUtils;
 import com.ibm.cbmp.fabric.web.api.annotation.GetApiMapping;
 import com.ibm.cbmp.fabric.web.api.annotation.PostApiMapping;
 import com.ibm.cbmp.fabric.web.api.message.ApiResponsePayload;
@@ -48,19 +47,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @RestController
 @RequiredArgsConstructor

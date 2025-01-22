@@ -4,19 +4,19 @@ import com.ctbcbank.navi.mid.campaign.management.dto.CampaignDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.CampaignRuleGroupDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.CampaignRuleSettingDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignConditionDto;
-import com.ctbcbank.navi.mid.campaign.management.entity.CampaignEntity;
-import com.ctbcbank.navi.mid.campaign.management.entity.CampaignRuleGroupCouponEntity;
-import com.ctbcbank.navi.mid.campaign.management.entity.CampaignRuleGroupEntity;
-import com.ctbcbank.navi.mid.campaign.management.entity.CampaignRuleSettingEntity;
+import com.ctbcbank.navi.mid.campaign.management.entity.*;
 import com.ctbcbank.navi.mid.campaign.management.enums.RuleNameEnum;
 import com.ctbcbank.navi.mid.campaign.management.enums.RuleTypeEnum;
 import com.ctbcbank.navi.mid.campaign.management.repository.CampaignRepository;
 import com.ctbcbank.navi.mid.campaign.management.repository.CampaignRuleGroupCouponRepository;
 import com.ctbcbank.navi.mid.campaign.management.repository.CampaignRuleGroupRepository;
 import com.ctbcbank.navi.mid.campaign.management.repository.CampaignRuleSettingRepository;
+import com.ctbcbank.navi.mid.campaign.management.utils.SqlUtils;
 import com.ctbcbank.navi.mid.campaign.management.vo.RuleEngine;
 import com.ctbcbank.navi.mid.campaign.management.vo.RuleGrope;
 import com.ctbcbank.navi.mid.campaign.management.vo.RuleNode;
+import com.ibm.cbmp.fabric.foundation.enums.FabricResponseCode;
+import com.ibm.cbmp.fabric.foundation.exception.NaviException;
 import com.ibm.cbmp.fabric.foundation.utils.BeanUtils;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
 import com.ibm.cbmp.fabric.foundation.utils.ObjectUtils;
@@ -36,6 +36,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @Log4j2
@@ -70,7 +72,7 @@ public class CampaignDao {
             }
 
             if (StringUtils.isNotBlank(queryCampaignConditionDto.getCampaignNameLike())) {
-                predicates.add(builder.like(root.get("name"), queryCampaignConditionDto.getCampaignNameLike()));
+                predicates.add(builder.like(root.get("name"), "%" + queryCampaignConditionDto.getCampaignNameLike() + "%"));
             }
 
             if (ObjectUtils.isNotEmpty(queryCampaignConditionDto.getCampaignDateTime())) {
@@ -330,6 +332,112 @@ public class CampaignDao {
             ruleSettingSql.append(" )");
         }
         return ruleSettingSql;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BigInteger> queryCampaignByRules(boolean isSearchCampaignIdList, List<BigInteger> campaignIdList, List<CampaignRuleSettingDto> campaignRuleSettingDtoList, int page, int size) {
+        try {
+            List<CampaignRuleSettingEntity> campaignRuleSettingEntityList = generateCampaignRuleSettingEntityList(campaignRuleSettingDtoList);
+            List<CampaignRuleSettingExtraEntity> campaignRuleSettingExtraEntityList = generateCampaignRuleSettingExtraEntityList(campaignRuleSettingDtoList);
+
+            Map<String, Object> sqlParams = new HashMap<>();
+            StringBuilder dataSql = new StringBuilder("""
+                    SELECT CAMPAIGN_ID FROM 
+                    (
+                     \n
+                    """);
+
+            List<String> selectFields = Stream.of("CAMPAIGN_ID").collect(Collectors.toList());
+            StringBuilder ruleSettingSB = SqlUtils.composeSql(campaignRuleSettingEntityList, selectFields, "TB_CAMPAIGN_RULE_SETTING", "ruleSetting", sqlParams);
+            dataSql.append(ruleSettingSB);
+
+            // UNION 會自動去除重複值
+            // UNION ALL 不會自動去除重複值
+            dataSql.append("""
+                     \n
+                     UNION 
+                     \n
+                    """);
+
+            StringBuilder ruleSettingExtraSB = SqlUtils.composeSql(campaignRuleSettingExtraEntityList, selectFields, "TB_CAMPAIGN_RULE_SETTING_EXTRA", "ruleSettingExtra", sqlParams);
+            dataSql.append(ruleSettingExtraSB);
+
+            dataSql.append("""
+                     \n
+                     )
+                    """);
+
+            if (isSearchCampaignIdList) {
+                dataSql.append(" WHERE CAMPAIGN_ID IN :campaignIdList");
+                sqlParams.put("campaignIdList", campaignIdList);
+            }
+
+            dataSql.append("""
+                     \n
+                     ORDER BY CAMPAIGN_ID DESC
+                    """);
+
+            // 計算總數量的SQL
+            StringBuilder countSql = new StringBuilder("""
+                            SELECT COUNT(*) 
+                            FROM (
+                    """);
+            countSql.append(dataSql);
+            countSql.append(" )");
+
+            log.info("[{}][queryCampaignByRule][dataSql: {}]", CLASS_NAME, dataSql);
+            log.info("[{}][queryCampaignByRule][countSql: {}]", CLASS_NAME, countSql);
+            log.info("[{}][queryCampaignByRule][sqlParams: {}]", CLASS_NAME, sqlParams);
+
+            Pageable pageable = PageRequest.of(page, size);
+            try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+                Query dataQuery = entityManager.createNativeQuery(dataSql.toString(), BigInteger.class);
+                sqlParams.forEach(dataQuery::setParameter);
+                dataQuery.setFirstResult((int) pageable.getOffset());
+                dataQuery.setMaxResults(pageable.getPageSize());
+                List<BigInteger> campaignIdListResult = dataQuery.getResultList();
+
+                Query countQuery = entityManager.createNativeQuery(countSql.toString(), BigInteger.class);
+                sqlParams.forEach(countQuery::setParameter);
+                Long totalCount = ((Number) countQuery.getSingleResult()).longValue();
+                return new PageImpl<>(campaignIdListResult, pageable, totalCount);
+            }
+        } catch (Exception ex) {
+            throw new NaviException(FabricResponseCode.INVALID_DATA, ex.getMessage());
+        }
+
+    }
+
+    public List<CampaignRuleSettingEntity> generateCampaignRuleSettingEntityList(List<CampaignRuleSettingDto> campaignRuleSettingDtoList) {
+        List<CampaignRuleSettingEntity> campaignRuleSettingEntityList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(campaignRuleSettingDtoList)) {
+            return campaignRuleSettingEntityList;
+        }
+        campaignRuleSettingEntityList = campaignRuleSettingDtoList.stream().map(x -> {
+            CampaignRuleSettingEntity campaignRuleSettingEntity = new CampaignRuleSettingEntity();
+            campaignRuleSettingEntity.setTransactionCode(x.getTransactionCode());
+            campaignRuleSettingEntity.setRuleName(x.getRuleName());
+            campaignRuleSettingEntity.setRuleType(x.getRuleType());
+            campaignRuleSettingEntity.setRuleValue(x.getRuleValue());
+            return campaignRuleSettingEntity;
+        }).toList();
+        return campaignRuleSettingEntityList;
+    }
+
+    public List<CampaignRuleSettingExtraEntity> generateCampaignRuleSettingExtraEntityList(List<CampaignRuleSettingDto> campaignRuleSettingDtoList) {
+        List<CampaignRuleSettingExtraEntity> campaignRuleSettingExtraEntityList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(campaignRuleSettingDtoList)) {
+            return campaignRuleSettingExtraEntityList;
+        }
+        campaignRuleSettingExtraEntityList = campaignRuleSettingDtoList.stream().map(x -> {
+            CampaignRuleSettingExtraEntity campaignRuleSettingExtraEntity = new CampaignRuleSettingExtraEntity();
+            campaignRuleSettingExtraEntity.setTransactionCode(x.getTransactionCode());
+            campaignRuleSettingExtraEntity.setRuleName(x.getRuleName());
+            campaignRuleSettingExtraEntity.setRuleType(x.getRuleType());
+            campaignRuleSettingExtraEntity.setRuleValue(x.getRuleValue());
+            return campaignRuleSettingExtraEntity;
+        }).toList();
+        return campaignRuleSettingExtraEntityList;
     }
 
 
