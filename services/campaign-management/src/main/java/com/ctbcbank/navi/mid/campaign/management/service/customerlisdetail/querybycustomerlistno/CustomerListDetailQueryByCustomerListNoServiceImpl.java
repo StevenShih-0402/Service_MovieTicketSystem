@@ -2,7 +2,7 @@ package com.ctbcbank.navi.mid.campaign.management.service.customerlisdetail.quer
 
 import com.ctbcbank.navi.mid.campaign.management.dao.CampaignCustomerListDetailDao;
 import com.ctbcbank.navi.mid.campaign.management.dto.campaigncustomerlistdetail.CampaignCustomerListDetailDto;
-import com.ctbcbank.navi.mid.campaign.management.service.campaignform.query.CampaignFormQueryServiceImpl;
+import com.ctbcbank.navi.mid.campaign.management.dto.campaigncustomerlistdetail.QueryCampaignCustomerListDetailConditionDto;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -23,8 +23,9 @@ public class CustomerListDetailQueryByCustomerListNoServiceImpl implements Custo
         String customerListNo = customerListDetailQueryByCustomerListNoRqBo.getCustomerListNo();
         int page = customerListDetailQueryByCustomerListNoRqBo.getNumber();
         int size = customerListDetailQueryByCustomerListNoRqBo.getSize();
-
-        Page<CampaignCustomerListDetailDto> queryResult = campaignCustomerListDetailDao.queryCampaignCustomerListDetailByCustomerListNo(customerListNo, page, size, "asc");
+        QueryCampaignCustomerListDetailConditionDto queryCampaignCustomerListDetailConditionDto = new QueryCampaignCustomerListDetailConditionDto();
+        queryCampaignCustomerListDetailConditionDto.setCustomerListNo(customerListNo);
+        Page<CampaignCustomerListDetailDto> queryResult = campaignCustomerListDetailDao.queryCampaignCustomerListDetail(queryCampaignCustomerListDetailConditionDto, page, size, "asc");
         CustomerListDetailQueryByCustomerListNoRsBo customerListDetailQueryByCustomerListNoRsBo = new CustomerListDetailQueryByCustomerListNoRsBo();
         customerListDetailQueryByCustomerListNoRsBo.setTotalElements(queryResult.getTotalElements());
         customerListDetailQueryByCustomerListNoRsBo.setTotalPages(queryResult.getTotalPages());
