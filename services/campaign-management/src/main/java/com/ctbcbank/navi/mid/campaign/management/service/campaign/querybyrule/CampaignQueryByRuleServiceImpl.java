@@ -6,6 +6,7 @@ import com.ctbcbank.navi.mid.campaign.management.dto.CampaignRuleSettingDto;
 import com.ctbcbank.navi.mid.campaign.management.dto.QueryCampaignConditionDto;
 import com.ctbcbank.navi.mid.campaign.management.service.campaign.query.CampaignQueryServiceImpl;
 import com.ibm.cbmp.fabric.foundation.utils.CollectionUtils;
+import com.ibm.cbmp.fabric.foundation.utils.ObjectUtils;
 import com.ibm.cbmp.fabric.foundation.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -46,9 +47,9 @@ public class CampaignQueryByRuleServiceImpl implements CampaignQueryByRuleServic
         List<CampaignRuleSettingDto> campaignRuleSettingDtoList = campaignQueryByRuleRqBo.getRuleList().stream().map(x -> {
             CampaignRuleSettingDto campaignRuleSettingDto = new CampaignRuleSettingDto();
             campaignRuleSettingDto.setTransactionCode(x.getTransactionCode().name());
-            campaignRuleSettingDto.setRuleName(x.getRuleName().name());
+            campaignRuleSettingDto.setRuleName(ObjectUtils.isEmpty(x.getRuleName()) ? null : x.getRuleName().name());
             campaignRuleSettingDto.setRuleValue(x.getRuleValue());
-            campaignRuleSettingDto.setRuleType(x.getRuleType().name());
+            campaignRuleSettingDto.setRuleType(ObjectUtils.isEmpty(x.getRuleType()) ? null : x.getRuleType().name());
             return campaignRuleSettingDto;
         }).toList();
         Page<BigInteger> queryResult = campaignDao.queryCampaignByRules(isSearchCampaignIdList, campaignIdList, campaignRuleSettingDtoList, number, size);
