@@ -1,0 +1,37 @@
+pluginManagement {
+    repositories {
+        maven {
+            url "http://128.168.131.135:9000/repository/navi-maven/"
+            credentials {
+                username "client"
+                password "magnolia"
+            }
+            allowInsecureProtocol = true
+        }
+    }
+}
+
+apply from: "${rootDir}/platform.gradle"
+
+dependencyResolutionManagement {
+    repositories {
+        maven {
+            url "http://128.168.131.135:9000/repository/navi-maven/"
+            credentials {
+                username "client"
+                password "magnolia"
+            }
+            allowInsecureProtocol = true
+        }
+    }
+    versionCatalogs {
+        libs {
+            from("com.ctbcbank.navi:version-catalog:${platform_version}")
+        }
+    }
+}
+
+rootProject.name = 'Service_Campaign'
+
+include(':services')
+include(':services:campaign-management')

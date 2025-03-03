@@ -1,0 +1,23 @@
+buildscript {
+    apply from: "${rootDir}/platform.gradle"
+}
+
+plugins {
+    id 'com.ctbcbank.navi.java-application-conventions' version "${platform_version}"
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "com.ctbcbank.navi:platform-dependencies:${platform_version}"
+    }
+}
+
+dependencies {
+    implementation 'com.ibm.cbmp.fabric:cbmp-fabric-boot-starter-web'
+    implementation 'com.ibm.cbmp.fabric:cbmp-fabric-boot-starter-jpa'
+    implementation 'com.ibm.cbmp.fabric:cbmp-fabric-boot-starter-test'
+    implementation 'com.ibm.cbmp.fabric:cbmp-fabric-boot-starter-adapter-htg'
+    implementation 'com.ibm.cbmp.fabric:cbmp-fabric-boot-starter-file-processor'
+}
+
+description = 'campaign-management'

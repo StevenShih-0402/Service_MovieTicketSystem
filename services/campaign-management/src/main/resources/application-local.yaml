@@ -1,0 +1,22 @@
+spring:
+  config:
+    import: application-ibm.yaml
+---
+spring:
+  config:
+    active:
+      on-profile: local
+server:
+  port: 8104
+cbmp:
+  async:
+    core-pool-size: 8
+    max-pool-size: 32
+    queue-capacity: 100
+  datasource:
+    mid:
+      url: ENC(hlWVCzTVtO2kTvKxs4o8p7JvWCZEj6ccp0caZXe9mHwIbFI8ZxoEz8OjRw/AcjQeDt9GafeHU11cfZQngWQcTYBwO89AHj64Vxql2Dg9h50=)
+adapter:
+  navi:
+    customer-info-management:
+      domain: http://localhost:8081/customer-info-management

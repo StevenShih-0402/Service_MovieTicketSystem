@@ -1,0 +1,19 @@
+package com.ctbcbank.navi.mid.movie.management.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import java.math.BigInteger;
+import java.time.LocalDateTime;
+
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BaseDto {
+    private BigInteger id;
+    private LocalDateTime createDttm;
+    private LocalDateTime updateDttm;
+}

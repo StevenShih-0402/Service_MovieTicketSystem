@@ -1,0 +1,72 @@
+logging:
+  level:
+    root: INFO
+    #    '[org.hibernate.engine.transaction.internal.TransactionImpl]': DEBUG
+    #    '[org.hibernate.orm.jdbc.bind]': TRACE
+    '[com.ibm.cbmp.fabric.web]': DEBUG
+    '[com.ibm.cbmp.fabric.foundation]': DEBUG
+    '[com.ibm.cbmp.fabric.foundation.aspect]': DEBUG
+    '[com.ctbcbank.navi.mid.customer.agreement.mgmt]': DEBUG
+  file:
+    path: ./logs
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/${spring.application.name}
+  swagger-ui:
+    path: /swagger
+    operationsSorter: alpha
+    tagsSorter: alpha
+    enabled: true
+    url: /v3/${spring.application.name}.yaml
+
+cbmp:
+  cache:
+    local:
+      cron:
+        all-evict:
+      maximum-size: 1000
+      expire-after-access: 600
+      expire-after-write: 3600
+  #    multilevel:
+  #      redis:
+  #        host: 127.0.0.1
+  #        port: 6379
+  datasource:
+    mid:
+      url: 128.168.131.135:3421/NAVIDB
+      username: NAVITEST
+      password: NAVITESTmagnolia
+  httpclient:
+    socket-timeout: 10
+    connect-timeout: 10
+    retry-attempts: 1
+    retry-interval: 1
+    ssl:
+      validate-certificate: false
+  web:
+    header:
+      validation:
+        check-exists: false
+        verify: false
+    jwt:
+      key-location: classpath:public.key
+  async:
+    enabled: true
+
+adapter:
+  navi:
+    customer-info-management:
+      domain: http://localhost:8081/customer-info-management
+
+management:
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+  tracing:
+    enabled: true
+
+campaign:
+  query-max-size: 1000
+  insert-batch-size: 100

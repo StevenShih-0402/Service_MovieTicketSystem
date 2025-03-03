@@ -1,0 +1,6 @@
+[submodule "platform"]
+	path = platform
+	url = https://github.ibm.com/ctbc-navi/Platform.git
+[submodule "buildSrc"]
+	path = buildSrc
+	url = https://github.ibm.com/ctbc-navi/L_buildSrc.git
