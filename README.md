@@ -1,20 +1,11 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+(由於資料庫設定與專案底層設定屬於專案機密，因此僅保留本人實作之部分程式碼，以及離職前的測試結果截圖。)
+這是為了熟悉專案開發流程的練習，主要使用到以下三張資料表：`TB_BRUCE_MOVIES`、`TB_BRUCE_USERS` 和 `TB_BRUCE_MOVIE_ORDERS`，練習開發 CRUD 相關操作的 API。
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+- 資料表使用的是軟刪除，被刪除的資料 Status 會從 0 變成 1。
+- 專案採用 Controller > Service > Dao > Entity 的分層架構
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+# Swagger Demo
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
-
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+# Unit Test
+當時專案對單元測試的要求是：對每支 Controller 層 API 進行一正一負的測試，並達到覆蓋率 80% 以上。
