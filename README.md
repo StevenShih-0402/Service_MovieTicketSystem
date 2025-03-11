@@ -14,6 +14,8 @@
 - 資料庫操作多數採用 JPA，但基於技術練習的用意，有些功能會採用 JDBC 去進行操作。
 
 # Swagger Demo
+http://localhost:8104/campaign-management/swagger-ui/index.html#/
+
 該系統合計包含 14 支 API，在電影功能的 API 有額外開發列表查詢與非同步查詢兩項功能。
 
 # Unit Test
