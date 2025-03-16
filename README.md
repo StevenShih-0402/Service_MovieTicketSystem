@@ -9,15 +9,36 @@
 
 // 資料庫資訊
 
-- 資料表使用的是軟刪除，被刪除的資料 Status 會從 0 變成 1。
-- 採用 Controller > Service > Dao > Repository 的分層架構，使用者輸入資料為 Rq，需轉換成 RqBo 後傳入 Service 處理業務邏輯，再將 RqBo 轉換成 Dto，傳入 DAO 進行資料庫操作
-- 資料庫操作多數採用 JPA，但基於技術練習的用意，有些功能會採用 JDBC 去進行操作。
+- 資料表使用的是軟刪除，被刪除的資料 Status 會從 0 變成 1 (`TB_BRUCE_MOVIE_ORDERS` 會從 0 變成 2)。
+- 採用 Controller > Service > Dao > Repository 的分層架構，使用者輸入資料為 Rq，需轉換成 RqBo 後傳入 Service 處理業務邏輯，再將 RqBo 轉換成 Dto，傳入 DAO 進行資料庫操作，並在 Repository 繼承 JPA 介面。
+- 資料庫操作多數採用 JPA，但基於技術練習的用意，有些功能會刻意採用 JDBC 去進行操作。
+- 在 Code Review 時基於技術練習的用意，除 CRUD 以外還有開發列表查詢、非同步查詢的 API，並撰寫單元測試，當時考量開發時間效益，因此僅在電影資料表 (`TB_BRUCE_MOVIES`) 實作。
 
 # Swagger Demo
-http://localhost:8104/campaign-management/swagger-ui/index.html#/
+該系統合計包含 14 支 API。
+1. 新增電影資訊
+2. 透過 id 查詢電影資訊
+3. 修改電影資訊
+4. 刪除電影資訊
+5. 列表查詢電影資訊
+6. 非同步查詢所有電影訂單、與其對應之用戶、電影詳細資訊
+7. 新增用戶資訊
+8. 透過 id 查詢用戶資訊
+9. 修改用戶資訊
+10. 刪除用戶資訊
+11. 新增電影訂單資訊
+12. 透過 id 查詢電影資訊
+13. 修改電影資訊
+14. 刪除電影資訊
 
-該系統合計包含 14 支 API，在電影功能的 API 有額外開發列表查詢與非同步查詢兩項功能。
 
 # Unit Test
 當時專案對單元測試的要求是：對每支 Controller 層 API 進行一正一負的測試，並達到覆蓋率 80% 以上。
 以新增電影 API 舉例說明：
+1. 正向測試
+建立測資後，用 Mock 模擬 API 成功的執行情境，並驗證回傳內容是否正確。
+   
+2. 負向測試
+建立測資後，用 Mock 模擬 API 每一種失敗的執行情境，並驗證回傳內容是否正確。
+
+最後附上單元測試的測報：
