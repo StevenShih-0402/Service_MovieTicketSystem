@@ -10,6 +10,7 @@
 - `TB_BRUCE_MOVIE_ORDERS`：電影訂單資訊，即用戶購買電影票後產生的訂單紀錄。
 ![電影訂單資料表](https://github.com/user-attachments/assets/69da2122-7a10-4c5f-ad62-9103626451d3)
 
+- clone 後，請在 bootRun 的環境變數貼上 `--spring.profiles.active=local`
 - 資料表使用的是軟刪除，被刪除的資料 Status 會從 0 變成 1 (`TB_BRUCE_MOVIE_ORDERS` 會從 0 變成 2)。
 - 採用 Controller > Service > Dao > Repository 的分層架構，使用者輸入資料為 Rq，需轉換成 RqBo 後傳入 Service 處理業務邏輯，再將 RqBo 轉換成 Dto，傳入 DAO 進行資料庫操作，並在 Repository 繼承 JPA 介面。
 - 資料庫操作多數採用 JPA，但基於技術練習的用意，有些功能會刻意採用 JDBC 去進行操作。
@@ -17,6 +18,7 @@
 
 # Swagger Demo
 該系統合計包含 14 支 API。
+http://localhost:8104/campaign-management/swagger-ui/index.html#/
 ![image](https://github.com/user-attachments/assets/e7075513-03c9-48b5-bc4f-3d7f132357dd)
 ![image](https://github.com/user-attachments/assets/f5524663-2c46-42de-af63-15a4f2d3ace5)
 ![image](https://github.com/user-attachments/assets/1b4c1918-35d9-4b14-ad19-3dfda95963d0)
